@@ -41,6 +41,16 @@ const placeholderSchema = z.object({
   notes: z.string().trim().max(1000).optional(),
 });
 
+const moveCitySchema = z.object({
+  cityId: z.string().uuid(),
+  direction: z.enum(["up", "down"]),
+});
+
+const assignCitySchema = z.object({
+  cityId: z.string().uuid(),
+  startDay: z.coerce.number().int().positive(),
+});
+
 function values(formData: FormData): Record<string, FormDataEntryValue> {
   return Object.fromEntries([...formData.entries()].filter(([, value]) => value !== ""));
 }
@@ -92,6 +102,46 @@ export async function addCity(tripId: string, formData: FormData): Promise<void>
     env.DB.prepare("insert into activity_events (id,trip_id,actor_user_id,entity_kind,entity_id,action,after,created_at) values (?1,?2,?3,'city',?4,'created',?5,?6)").bind(crypto.randomUUID(), tripId, user.id, cityId, JSON.stringify({ name: input.name, startDay: input.startDay ?? null }), now),
   ];
   await env.DB.batch(statements);
+  refreshTrip(tripId);
+}
+
+export async function moveCity(tripId: string, formData: FormData): Promise<void> {
+  const { user } = await requireTripMember(tripId);
+  const input = moveCitySchema.parse(values(formData));
+  const { env } = getCloudflareContext();
+  const city = await env.DB.prepare("select id,name,position from cities where id=?1 and trip_id=?2 and deleted_at is null").bind(input.cityId, tripId).first<{ id: string; name: string; position: number }>();
+  if (!city) throw new Error("CITY_NOT_IN_TRIP");
+  const operator = input.direction === "up" ? "<" : ">";
+  const order = input.direction === "up" ? "desc" : "asc";
+  const neighbor = await env.DB.prepare(`select id,position from cities where trip_id=?1 and deleted_at is null and position ${operator} ?2 order by position ${order} limit 1`).bind(tripId, city.position).first<{ id: string; position: number }>();
+  if (!neighbor) return;
+  const now = Date.now();
+  await env.DB.batch([
+    env.DB.prepare("update cities set position=-1,version=version+1,updated_at=?1 where id=?2 and trip_id=?3").bind(now, city.id, tripId),
+    env.DB.prepare("update cities set position=?1,version=version+1,updated_at=?2 where id=?3 and trip_id=?4").bind(city.position, now, neighbor.id, tripId),
+    env.DB.prepare("update cities set position=?1,version=version+1,updated_at=?2 where id=?3 and trip_id=?4").bind(neighbor.position, now, city.id, tripId),
+    env.DB.prepare("insert into activity_events (id,trip_id,actor_user_id,entity_kind,entity_id,action,after,created_at) values (?1,?2,?3,'city',?4,'moved',?5,?6)").bind(crypto.randomUUID(), tripId, user.id, city.id, JSON.stringify({ name: city.name, direction: input.direction, position: neighbor.position }), now),
+  ]);
+  refreshTrip(tripId);
+}
+
+export async function assignCityFromDay(tripId: string, formData: FormData): Promise<void> {
+  const { user } = await requireTripMember(tripId);
+  const input = assignCitySchema.parse(values(formData));
+  const { env } = getCloudflareContext();
+  const [city, days] = await Promise.all([
+    env.DB.prepare("select id,name from cities where id=?1 and trip_id=?2 and deleted_at is null").bind(input.cityId, tripId).first<{ id: string; name: string }>(),
+    env.DB.prepare("select id,ordinal,city_id as cityId,calendar_date as calendarDate from trip_days where trip_id=?1 order by ordinal").bind(tripId).all<{ id: string; ordinal: number; cityId: string; calendarDate: string | null }>(),
+  ]);
+  if (!city || !days.results.some((day) => day.ordinal === input.startDay)) throw new Error("CITY_OR_DAY_NOT_IN_TRIP");
+  const reassigned = days.results.map((day) => day.ordinal >= input.startDay ? { ...day, cityId: city.id } : day);
+  const now = Date.now();
+  await env.DB.batch([
+    ...days.results.filter((day) => day.ordinal >= input.startDay).map((day) => env.DB.prepare("update trip_days set city_id=?1,version=version+1,updated_at=?2 where id=?3 and trip_id=?4").bind(city.id, now, day.id, tripId)),
+    env.DB.prepare("delete from trip_nights where trip_id=?1").bind(tripId),
+    ...reassigned.slice(0, -1).map((day) => env.DB.prepare("insert into trip_nights (id,trip_id,after_day_id,kind,stay_city_id,calendar_date) values (?1,?2,?3,'stay',?4,?5)").bind(crypto.randomUUID(), tripId, day.id, day.cityId, day.calendarDate)),
+    env.DB.prepare("insert into activity_events (id,trip_id,actor_user_id,entity_kind,entity_id,action,after,created_at) values (?1,?2,?3,'city',?4,'days_assigned',?5,?6)").bind(crypto.randomUUID(), tripId, user.id, city.id, JSON.stringify({ name: city.name, startDay: input.startDay }), now),
+  ]);
   refreshTrip(tripId);
 }
 

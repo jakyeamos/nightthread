@@ -25,6 +25,8 @@ function eventCopy(event: EventRow): string {
     placeholder_replaced: `replaced a placeholder with ${name ?? "a saved idea"}`,
     voted: `voted for ${name ?? "a saved idea"}`,
     unvoted: `removed a vote from ${name ?? "a saved idea"}`,
+    moved: `moved ${name ?? "a city stop"}`,
+    days_assigned: `assigned ${name ?? "a city"} from Day ${String(after?.startDay ?? "")}`,
   };
   return labels[event.action] ?? `${event.action.replaceAll("_", " ")} ${event.entityKind.replaceAll("_", " ")}`;
 }
