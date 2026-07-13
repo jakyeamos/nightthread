@@ -1,11 +1,31 @@
 import { describe, expect, it } from "vitest";
-import { calendarDateForOrdinal, moveItem, parseCost, replacePlaceholder } from "@/domain/itinerary";
+import { buildInitialTripStructure, calendarDateForOrdinal, moveItem, parseCost, replacePlaceholder, tripLengthInDays } from "@/domain/itinerary";
 
 describe("stable day ordinals", () => {
   it("recomputes calendar dates without changing ordinal identity", () => {
     expect(calendarDateForOrdinal("2026-10-12", 5)).toBe("2026-10-16");
     expect(calendarDateForOrdinal("2026-11-02", 5)).toBe("2026-11-06");
     expect(calendarDateForOrdinal(null, 5)).toBeNull();
+  });
+
+  it("creates one stable ordinal per inclusive calendar day", () => {
+    expect(tripLengthInDays("2027-06-10", "2027-06-27")).toBe(18);
+    expect(tripLengthInDays(null, null)).toBe(1);
+    expect(() => tripLengthInDays("2027-06-27", "2027-06-10")).toThrow("INVALID_DATE_RANGE");
+  });
+
+  it("builds one stay-night edge after every non-final day", () => {
+    let id = 0;
+    const structure = buildInitialTripStructure("2027-06-10", "2027-06-12", () => `id-${++id}`);
+    expect(structure.days).toEqual([
+      { id: "id-1", ordinal: 1, calendarDate: "2027-06-10" },
+      { id: "id-2", ordinal: 2, calendarDate: "2027-06-11" },
+      { id: "id-3", ordinal: 3, calendarDate: "2027-06-12" },
+    ]);
+    expect(structure.nights).toEqual([
+      { id: "id-4", afterDayId: "id-1", calendarDate: "2027-06-10" },
+      { id: "id-5", afterDayId: "id-2", calendarDate: "2027-06-11" },
+    ]);
   });
 });
 

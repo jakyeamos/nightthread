@@ -1,23 +1,23 @@
-import type { DemoCity, DemoDay, DemoIdea, DemoItem } from "@/lib/demo-data";
+import type { WorkspaceCity, WorkspaceDay, WorkspaceIdea, WorkspaceItem } from "@/lib/demo-data";
 
 export interface DayGroup {
-  city: DemoCity;
-  days: DemoDay[];
+  city: WorkspaceCity;
+  days: WorkspaceDay[];
 }
 
 export type DaySequenceEntry =
-  | { kind: "day"; day: DemoDay }
-  | { kind: "empty_run"; id: string; days: DemoDay[] };
+  | { kind: "day"; day: WorkspaceDay }
+  | { kind: "empty_run"; id: string; days: WorkspaceDay[] };
 
 export interface DaySignals {
   totalMinutes: number;
   unknownDurations: number;
   openDecisions: number;
-  reservationNeeded?: DemoItem;
-  closedPlaces: DemoItem[];
+  reservationNeeded?: WorkspaceItem;
+  closedPlaces: WorkspaceItem[];
 }
 
-export function groupDaysByCity(days: readonly DemoDay[], cities: readonly DemoCity[]): DayGroup[] {
+export function groupDaysByCity(days: readonly WorkspaceDay[], cities: readonly WorkspaceCity[]): DayGroup[] {
   const cityById = new Map(cities.map((city) => [city.id, city]));
   const groups: DayGroup[] = [];
   for (const day of days) {
@@ -30,7 +30,7 @@ export function groupDaysByCity(days: readonly DemoDay[], cities: readonly DemoC
   return groups;
 }
 
-export function compressEmptyDayRuns(days: readonly DemoDay[], items: readonly DemoItem[]): DaySequenceEntry[] {
+export function compressEmptyDayRuns(days: readonly WorkspaceDay[], items: readonly WorkspaceItem[]): DaySequenceEntry[] {
   const itemDays = new Set(items.map((item) => item.dayId));
   const entries: DaySequenceEntry[] = [];
   let index = 0;
@@ -42,7 +42,7 @@ export function compressEmptyDayRuns(days: readonly DemoDay[], items: readonly D
       index += 1;
       continue;
     }
-    const run: DemoDay[] = [];
+    const run: WorkspaceDay[] = [];
     while (index < days.length) {
       const candidate = days[index];
       if (itemDays.has(candidate.id) || !/open day/i.test(candidate.title)) break;
@@ -55,7 +55,7 @@ export function compressEmptyDayRuns(days: readonly DemoDay[], items: readonly D
   return entries;
 }
 
-export function formatDuration(item: DemoItem): string {
+export function formatDuration(item: WorkspaceItem): string {
   if (item.duration === undefined) return "Duration open";
   const hours = Math.floor(item.duration / 60);
   const minutes = item.duration % 60;
@@ -65,7 +65,7 @@ export function formatDuration(item: DemoItem): string {
   return duration;
 }
 
-export function getDaySignals(dayId: string, items: readonly DemoItem[]): DaySignals {
+export function getDaySignals(dayId: string, items: readonly WorkspaceItem[]): DaySignals {
   const dayItems = items.filter((item) => item.dayId === dayId);
   return {
     totalMinutes: dayItems.reduce((total, item) => total + (item.duration ?? 0), 0),
@@ -76,6 +76,6 @@ export function getDaySignals(dayId: string, items: readonly DemoItem[]): DaySig
   };
 }
 
-export function getVisibleIdeas(ideas: readonly DemoIdea[], cityId: string, allCities: boolean): DemoIdea[] {
+export function getVisibleIdeas(ideas: readonly WorkspaceIdea[], cityId: string, allCities: boolean): WorkspaceIdea[] {
   return allCities ? [...ideas] : ideas.filter((idea) => idea.cityId === cityId);
 }

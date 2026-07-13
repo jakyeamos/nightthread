@@ -5,11 +5,16 @@ export async function POST(_request: Request, context: { params: Promise<{ tripI
   const { tripId, ideaId } = await context.params;
   const { user } = await requireTripMember(tripId);
   const { env } = getCloudflareContext();
-  const idea = await env.DB.prepare("select id from saved_ideas where id=?1 and trip_id=?2 and deleted_at is null").bind(ideaId, tripId).first();
+  const idea = await env.DB.prepare("select id,name from saved_ideas where id=?1 and trip_id=?2 and deleted_at is null").bind(ideaId, tripId).first<{ id: string; name: string }>();
   if (!idea) return Response.json({ error: "NOT_FOUND" }, { status: 404 });
   const existing = await env.DB.prepare("select 1 from votes where saved_idea_id=?1 and user_id=?2").bind(ideaId, user.id).first();
-  if (existing) await env.DB.prepare("delete from votes where saved_idea_id=?1 and user_id=?2").bind(ideaId, user.id).run();
-  else await env.DB.prepare("insert into votes (saved_idea_id,user_id,created_at) values (?1,?2,?3)").bind(ideaId, user.id, Date.now()).run();
+  const now = Date.now();
+  await env.DB.batch([
+    existing
+      ? env.DB.prepare("delete from votes where saved_idea_id=?1 and user_id=?2").bind(ideaId, user.id)
+      : env.DB.prepare("insert into votes (saved_idea_id,user_id,created_at) values (?1,?2,?3)").bind(ideaId, user.id, now),
+    env.DB.prepare("insert into activity_events (id,trip_id,actor_user_id,entity_kind,entity_id,action,after,created_at) values (?1,?2,?3,'saved_idea',?4,?5,?6,?7)").bind(crypto.randomUUID(), tripId, user.id, ideaId, existing ? "unvoted" : "voted", JSON.stringify({ name: idea.name }), now),
+  ]);
   const count = await env.DB.prepare("select count(*) as count from votes where saved_idea_id=?1").bind(ideaId).first<{ count: number }>();
   return Response.json({ active: !existing, count: count?.count ?? 0 });
 }

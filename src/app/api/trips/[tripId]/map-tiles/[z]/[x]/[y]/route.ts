@@ -18,6 +18,12 @@ interface AuthorizationFailure {
 }
 
 type MembershipVerifier = (tripId: string) => Promise<unknown>;
+type TileCacheStorage = Pick<CacheStorage, "open">;
+
+export async function openMapTileCache(storage: TileCacheStorage | undefined = globalThis.caches): Promise<Cache | null> {
+  if (!storage || typeof storage.open !== "function") return null;
+  return storage.open("nightthread-map-tiles");
+}
 
 export function parseTileCoordinates(z: string, x: string, y: string): TileCoordinates | null {
   if (![z, x, y].every((part) => tilePart.test(part))) return null;
@@ -69,8 +75,8 @@ export async function GET(request: Request, context: { params: Promise<{ tripId:
   const { env, ctx } = getCloudflareContext();
   const cacheUrl = new URL(`/__nightthread-map-cache/osm-bright-smooth/${z}/${x}/${y}`, request.url);
   const cacheKey = new Request(cacheUrl);
-  const edgeCache = await caches.open("nightthread-map-tiles");
-  const cached = await edgeCache.match(cacheKey).catch(() => undefined);
+  const edgeCache = await openMapTileCache();
+  const cached = await edgeCache?.match(cacheKey).catch(() => undefined);
   if (cached) return new Response(cached.body, { headers: tileHeaders(requestId, cached.headers.get("Content-Type") ?? "image/png") });
 
   const startedAt = performance.now();
@@ -81,6 +87,6 @@ export async function GET(request: Request, context: { params: Promise<{ tripId:
 
   const body = await upstream.arrayBuffer();
   const cacheResponse = new Response(body, { headers: { "Cache-Control": "public, max-age=86400", "Content-Type": contentType, "X-Content-Type-Options": "nosniff", "X-Map-Attribution": attribution } });
-  ctx.waitUntil(edgeCache.put(cacheKey, cacheResponse.clone()).catch(() => undefined));
+  if (edgeCache) ctx.waitUntil(edgeCache.put(cacheKey, cacheResponse.clone()).catch(() => undefined));
   return new Response(body, { headers: tileHeaders(requestId, contentType) });
 }

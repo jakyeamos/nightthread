@@ -42,7 +42,7 @@ async function loadOverview(tripId: string): Promise<OverviewData | null> {
       travelNights: Math.max(0, fixture.totalNights - stayNights),
       unresolvedTransfers: fixture.items.filter((item) => item.placeholderType === "travel").length,
       lodgingNeeds: fixture.cities.filter((city) => city.nights > 0 && city.stayStatus !== "booked").length,
-      cities: fixture.cities,
+      cities: fixture.cities.map((city) => ({ ...city, image: city.image ?? null })),
       source: fixture.source,
     };
   }

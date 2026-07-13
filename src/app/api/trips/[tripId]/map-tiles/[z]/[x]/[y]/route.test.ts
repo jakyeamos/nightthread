@@ -1,7 +1,18 @@
 import { describe, expect, it, vi } from "vitest";
-import { authorizeTileRequest, GET, geoapifyTileUrl, parseTileCoordinates } from "@/app/api/trips/[tripId]/map-tiles/[z]/[x]/[y]/route";
+import { authorizeTileRequest, GET, geoapifyTileUrl, openMapTileCache, parseTileCoordinates } from "@/app/api/trips/[tripId]/map-tiles/[z]/[x]/[y]/route";
 
 describe("map tile contract", () => {
+  it("skips edge caching when the Cache API is unavailable", async () => {
+    await expect(openMapTileCache(undefined)).resolves.toBeNull();
+  });
+
+  it("opens the bounded tile cache when the Cache API exists", async () => {
+    const cache = { match: vi.fn(), put: vi.fn() } as unknown as Cache;
+    const open = vi.fn().mockResolvedValue(cache);
+    await expect(openMapTileCache({ open })).resolves.toBe(cache);
+    expect(open).toHaveBeenCalledWith("nightthread-map-tiles");
+  });
+
   it("accepts only coordinates inside the zoom grid", () => {
     expect(parseTileCoordinates("0", "0", "0")).toEqual({ z: 0, x: 0, y: 0 });
     expect(parseTileCoordinates("2", "3", "3")).toEqual({ z: 2, x: 3, y: 3 });

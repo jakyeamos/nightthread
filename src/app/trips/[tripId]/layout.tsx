@@ -8,10 +8,13 @@ import { getDemoTripFixture } from "@/lib/demo-trips";
 export default async function Layout({ children, params }: { children: ReactNode; params: Promise<{ tripId: string }> }) {
   const { tripId } = await params;
   const fixture = getDemoTripFixture(tripId);
-  if (fixture) return <TripShell tripId={tripId} tripName={fixture.name}>{children}</TripShell>;
-  await requireTripMember(tripId);
+  if (fixture) return <TripShell tripId={tripId} tripName={fixture.name} memberCount={4} role="collaborator">{children}</TripShell>;
+  const membership = await requireTripMember(tripId);
   const { env } = getCloudflareContext();
-  const trip = await env.DB.prepare("select name from trips where id=?1 and deleted_at is null").bind(tripId).first<{ name: string }>();
+  const [trip, members] = await Promise.all([
+    env.DB.prepare("select name from trips where id=?1 and deleted_at is null").bind(tripId).first<{ name: string }>(),
+    env.DB.prepare("select count(*) as count from trip_members where trip_id=?1").bind(tripId).first<{ count: number }>(),
+  ]);
   if (!trip) notFound();
-  return <TripShell tripId={tripId} tripName={trip.name}>{children}</TripShell>;
+  return <TripShell tripId={tripId} tripName={trip.name} memberCount={members?.count ?? 1} role={membership.role}>{children}</TripShell>;
 }

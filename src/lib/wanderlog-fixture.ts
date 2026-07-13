@@ -1,8 +1,8 @@
-import type { DemoCity, DemoDay, DemoIdea, DemoItem } from "@/lib/demo-data";
+import type { WorkspaceCity, WorkspaceDay, WorkspaceIdea, WorkspaceItem } from "@/lib/demo-data";
 
 export const wanderlogSourceUrl = "https://wanderlog.com/plan/kbtkhysjlxosqhzv/trip-to-budapest-prague-and-more/shared";
 
-export const wanderlogCities: DemoCity[] = [
+export const wanderlogCities: WorkspaceCity[] = [
   { id: "budapest", name: "Budapest", country: "Hungary", nights: 2, timeZone: "Europe/Budapest", lat: 47.4979, lon: 19.0402, image: "https://itin-dev.wanderlogstatic.com/freeImageSmall/UPhFX77MC4FC6LFe41Mf2mGA6QYja5zl", stayStatus: "needs_confirmation", lodgingName: "The Hive Party Hostel" },
   { id: "prague", name: "Prague", country: "Czechia", nights: 3, timeZone: "Europe/Prague", lat: 50.0755, lon: 14.4378, image: "https://itin-dev.wanderlogstatic.com/freeImageSmall/v42E25XvxE1zWYhKASBjKvg3SuBp97D7", stayStatus: "needed" },
   { id: "ortisei", name: "Ortisei", country: "Italy", nights: 2, timeZone: "Europe/Rome", lat: 46.5753, lon: 11.6711, image: "https://itin-dev.wanderlogstatic.com/freeImageSmall/o8UtK8LmFcXTSSd4oT9cAcNkOeM2MnuW", stayStatus: "needed" },
@@ -13,7 +13,7 @@ export const wanderlogCities: DemoCity[] = [
   { id: "rome", name: "Rome", country: "Italy", nights: 5, timeZone: "Europe/Rome", lat: 41.9028, lon: 12.4964, image: "https://itin-dev.wanderlogstatic.com/freeImageSmall/mn1PEqM9dcRXFhVWSIX5soCBqOTgZKtk", stayStatus: "needed" },
 ];
 
-export const wanderlogDays: DemoDay[] = [
+export const wanderlogDays: WorkspaceDay[] = [
   { id: "wl-day-1", ordinal: 1, date: "Jun 10", cityId: "budapest", title: "Arrive, check in, eat, party" },
   { id: "wl-day-2", ordinal: 2, date: "Jun 11", cityId: "budapest", title: "Buda views and bath party" },
   { id: "wl-day-3", ordinal: 3, date: "Jun 12", cityId: "prague", title: "Train ride recovery day" },
@@ -34,10 +34,10 @@ export const wanderlogDays: DemoDay[] = [
   { id: "wl-day-18", ordinal: 18, date: "Jun 27", cityId: "rome", title: "Departure day" },
 ];
 
-const activity = (id: string, dayId: string, title: string, subtitle: string, duration?: number): DemoItem => ({ id, dayId, title, subtitle, duration, durationSource: duration ? "estimate" : undefined, kind: "activity" });
-const placeholder = (id: string, dayId: string, title: string, subtitle: string, duration: number, placeholderType: DemoItem["placeholderType"], durationSource: DemoItem["durationSource"] = "estimate"): DemoItem => ({ id, dayId, title, subtitle, duration, durationSource, kind: "placeholder", placeholderType });
+const activity = (id: string, dayId: string, title: string, subtitle: string, duration?: number): WorkspaceItem => ({ id, dayId, title, subtitle, duration, durationSource: duration ? "estimate" : undefined, kind: "activity" });
+const placeholder = (id: string, dayId: string, title: string, subtitle: string, duration: number, placeholderType: WorkspaceItem["placeholderType"], durationSource: WorkspaceItem["durationSource"] = "estimate"): WorkspaceItem => ({ id, dayId, title, subtitle, duration, durationSource, kind: "placeholder", placeholderType });
 
-export const wanderlogItems: DemoItem[] = [
+export const wanderlogItems: WorkspaceItem[] = [
   activity("wl-kiosk", "wl-day-1", "KIOSK Budapest", "Dinner · Budapest"),
   activity("wl-hive", "wl-day-1", "The Hive Party Hostel", "Lodging · check-in", 45),
   activity("wl-fogas", "wl-day-1", "Instant-Fogas Complex", "Nightlife · District VII", 120),
@@ -76,7 +76,7 @@ export const wanderlogItems: DemoItem[] = [
   activity("wl-rome", "wl-day-13", "Rome", "Arrival and check-in", 90),
 ];
 
-export const wanderlogIdeas: DemoIdea[] = [
+export const wanderlogIdeas: WorkspaceIdea[] = [
   { id: "wl-idea-parliament", name: "Hungarian Parliament Building", detail: "Budapest · recommended", cityId: "budapest", priority: "would_like", votes: 1, image: "https://itin-dev.wanderlogstatic.com/freeImage80/A2fRwwa4IXYLTDKWCPN9bFWqapSxjnFN", imageAttribution: { label: "Source trip", url: wanderlogSourceUrl }, scheduled: false, lat: 47.5071, lon: 19.0457 },
   { id: "wl-idea-basilica", name: "St. Stephen's Basilica", detail: "Budapest · recommended", cityId: "budapest", priority: "if_time", votes: 1, image: "https://itin-dev.wanderlogstatic.com/freeImage80/oNtRn7TrjJZWQr0grf4UqC3PRtiSqe6e", imageAttribution: { label: "Source trip", url: wanderlogSourceUrl }, scheduled: false, lat: 47.5009, lon: 19.0539 },
   { id: "wl-idea-oeschinen", name: "Oeschinen Lake", detail: "Kandersteg · recommended", cityId: "kandersteg", priority: "must_do", votes: 2, image: "https://itin-dev.wanderlogstatic.com/freeImage80/OtbqTsu2a1JE2FGGXISKFdFRzYg20A9O", imageAttribution: { label: "Source trip", url: wanderlogSourceUrl }, scheduled: false, lat: 46.4988, lon: 7.7266 },
