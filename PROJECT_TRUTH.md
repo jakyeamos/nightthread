@@ -2,7 +2,7 @@
 
 ## Current State
 
-Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules, long-trip fixture, and authenticated D1 planning flows are implemented on the feature branch. Real trips now create or recover stable days and nights, load one shared workspace contract, and persist route stops, manual ideas, votes, scheduling, placeholders, placeholder replacement, deletion undo, settings, invitations, and activity history. The local Budapest trip has been recovered to 18 days and 17 stay nights without Tokyo fixture leakage.
+Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules, long-trip fixture, and authenticated D1 planning flows are implemented on the feature branch. Real trips now create or recover stable days and nights, load one shared workspace contract, and persist route stops, manual ideas, votes, scheduling, placeholders, placeholder replacement, deletion undo, settings, invitations, and activity history. Route stops can be reordered and existing cities can reclaim a stable day tail after out-of-order entry.
 
 ## Current Position
 
@@ -16,6 +16,7 @@ Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules
 - Long-trip usability commit: `5cda5b6`
 - Local test authentication commit: `5491330`
 - Authenticated planning recovery commit: `6f4b4ce`
+- Route correction controls commit: `3bf36f6`
 - Build: passing Next.js and OpenNext production builds
 - Tests: 37 unit/contract tests and 15 fixture-focused Chromium critical-flow checks passing
 - Deployment: Wrangler dry run passes; live resources and credentials are not configured
@@ -23,7 +24,7 @@ Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules
 
 ## Next Step
 
-Resume the hands-on Budapest–Prague–Alps entry using the real route builder and manual idea flow, then add an isolated fresh-D1 browser test that proves persistence across reloads before resuming deployment readiness.
+Complete the hands-on Budapest–Prague–Alps entry using the repaired route ordering/day-assignment controls and manual idea flow, then add an isolated fresh-D1 browser test that proves persistence across reloads.
 
 ## Blockers
 
@@ -52,6 +53,7 @@ Resume the hands-on Budapest–Prague–Alps entry using the real route builder 
 - 2026-07-13: Created a fresh Budapest trip through the browser and confirmed the authenticated planner, ideas, settings, and activity routes are still demo-backed.
 - 2026-07-13: Replaced authenticated demo fallbacks with a shared D1 workspace, persistent planning/settings/activity flows, accurate membership, and local-safe map caching (`6f4b4ce`).
 - 2026-07-13: Recovered the browser-created Budapest trip to 18 stable days and 17 stay nights through the authenticated server action.
+- 2026-07-13: Added route reordering and explicit existing-city day-tail assignment after the live Wanderlog entry exposed out-of-order repair gaps (`3bf36f6`).
 
 ## Quick Tasks Completed
 
@@ -67,3 +69,4 @@ Resume the hands-on Budapest–Prague–Alps entry using the real route builder 
 | 2026-07-13 | Hands-on entry created the real trip shell and exposed D1 product-flow blockers hidden by fixtures. |
 | 2026-07-13 | Verified all four authenticated product routes return the real Budapest trip with no Tokyo fallback. |
 | 2026-07-13 | Passed 37 tests, lint, typecheck, Next/OpenNext builds, and the Wrangler deployment dry run. |
+| 2026-07-13 | Browser-tested route entry and added correction controls for late or missed city stops. |
