@@ -2,7 +2,7 @@
 
 ## Current State
 
-Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules, long-trip fixture, and authenticated D1 planning flows are implemented on the feature branch. Real trips now create or recover stable days and nights, load one shared workspace contract, and persist route stops, manual ideas, votes, scheduling, placeholders, placeholder replacement, deletion undo, settings, invitations, and activity history. Route stops can be reordered and existing cities can reclaim a stable day tail after out-of-order entry.
+Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules, long-trip fixture, and authenticated D1 planning flows are implemented on the feature branch. Real trips now create or recover stable days and nights, load one shared workspace contract, and persist route stops, manual ideas, votes, scheduling, exact-minute placeholders, placeholder replacement, deletion undo, settings, invitations, and activity history. Route stops can be reordered and existing cities can reclaim a stable day tail after out-of-order entry.
 
 ## Current Position
 
@@ -19,6 +19,7 @@ Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules
 - Route correction controls commit: `3bf36f6`
 - Planner navigation-race fix commit: `178e253`
 - Planner navigation-ownership fix commit: `ac06e7d`
+- Exact itinerary durations commit: `af8def8`
 - Build: passing Next.js and OpenNext production builds
 - Tests: 37 unit/contract tests and 15 fixture-focused Chromium critical-flow checks passing
 - Deployment: Wrangler dry run passes; live resources and credentials are not configured
@@ -41,8 +42,6 @@ Complete the hands-on Budapest–Prague–Alps entry using the repaired route or
 
 ## Recent Progress
 
-- 2026-07-13: Committed the product, design, truth, and repository foundation (`688418f`).
-- 2026-07-13: Approved Nightthread Production V1 plan and design direction.
 - 2026-07-13: Implemented the full V1 application and Cloudflare architecture (`1d55d5e`).
 - 2026-07-13: Passed lint, typecheck, 14 unit tests, D1 migration, five browser flows, Next/OpenNext builds, and Worker dry run.
 - 2026-07-13: Added the repository-local Pre-CR security, checklist, and test command contract (`8931425`).
@@ -57,12 +56,12 @@ Complete the hands-on Budapest–Prague–Alps entry using the repaired route or
 - 2026-07-13: Recovered the browser-created Budapest trip to 18 stable days and 17 stay nights through the authenticated server action.
 - 2026-07-13: Added route reordering and explicit existing-city day-tail assignment after the live Wanderlog entry exposed out-of-order repair gaps (`3bf36f6`).
 - 2026-07-13: Made explicit city/day jumps authoritative until the next user scroll, replacing the insufficient timer guard (`178e253`, `ac06e7d`).
+- 2026-07-13: Allowed exact-minute itinerary durations after native step validation rejected Wanderlog's 453-minute Prague transfer (`af8def8`).
 
 ## Quick Tasks Completed
 
 | Date | Task |
 | --- | --- |
-| 2026-07-13 | Captured product and design context for implementation. |
 | 2026-07-13 | Verified the planner at 1024×768, 1440×900, and 1728×1117. |
 | 2026-07-13 | Applied the 48-command initial migration to local D1 state. |
 | 2026-07-13 | Configured project-local Pre-CR checks. |
@@ -74,3 +73,4 @@ Complete the hands-on Budapest–Prague–Alps entry using the repaired route or
 | 2026-07-13 | Passed 37 tests, lint, typecheck, Next/OpenNext builds, and the Wrangler deployment dry run. |
 | 2026-07-13 | Browser-tested route entry and added correction controls for late or missed city stops. |
 | 2026-07-13 | Browser-tested and fixed the Kandersteg-to-Rome navigation race with interaction-owned selection. |
+| 2026-07-13 | Entered and reload-verified the exact 453-minute Budapest-to-Prague transfer. |
