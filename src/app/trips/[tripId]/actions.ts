@@ -41,6 +41,17 @@ const placeholderSchema = z.object({
   notes: z.string().trim().max(1000).optional(),
 });
 
+const manualActivitySchema = z.object({
+  dayId: z.string().uuid(),
+  name: z.string().trim().min(2).max(160),
+  address: z.string().trim().max(240).optional(),
+  priority: z.enum(["must_do", "would_like", "if_time"]),
+  period: z.enum(["morning", "afternoon", "evening"]),
+  exactTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/).optional(),
+  duration: z.coerce.number().int().min(1).max(1440),
+  notes: z.string().trim().max(1000).optional(),
+});
+
 const moveCitySchema = z.object({
   cityId: z.string().uuid(),
   direction: z.enum(["up", "down"]),
@@ -210,6 +221,28 @@ export async function createPlaceholder(tripId: string, formData: FormData): Pro
   await env.DB.batch([
     env.DB.prepare("insert into itinerary_items (id,trip_id,day_id,position,kind,placeholder_type,schedule_mode,period,duration_minutes,notes,reservation_status,links,needs_decision,version,created_at,updated_at) values (?1,?2,?3,?4,'placeholder',?5,'period',?6,?7,?8,'none',?9,1,1,?10,?10)").bind(itemId, tripId, input.dayId, position?.position ?? 0, input.placeholderType, input.period, input.duration, input.notes || null, JSON.stringify([]), now),
     env.DB.prepare("insert into activity_events (id,trip_id,actor_user_id,entity_kind,entity_id,action,after,created_at) values (?1,?2,?3,'itinerary_item',?4,'placeholder_created',?5,?6)").bind(crypto.randomUUID(), tripId, user.id, itemId, JSON.stringify({ placeholderType: input.placeholderType, dayOrdinal: day.ordinal }), now),
+  ]);
+  refreshTrip(tripId);
+}
+
+export async function createManualActivity(tripId: string, formData: FormData): Promise<void> {
+  const { user } = await requireTripMember(tripId);
+  const input = manualActivitySchema.parse(values(formData));
+  const { env } = getCloudflareContext();
+  const [day, position] = await Promise.all([
+    env.DB.prepare("select ordinal,city_id as cityId from trip_days where id=?1 and trip_id=?2").bind(input.dayId, tripId).first<{ ordinal: number; cityId: string }>(),
+    env.DB.prepare("select coalesce(max(position),-1)+1 as position from itinerary_items where day_id=?1 and deleted_at is null").bind(input.dayId).first<{ position: number }>(),
+  ]);
+  if (!day) throw new Error("DAY_NOT_IN_TRIP");
+  const ideaId = crypto.randomUUID();
+  const itemId = crypto.randomUUID();
+  const scheduleMode = input.exactTime ? "exact" : "period";
+  const startMinute = input.exactTime ? Number(input.exactTime.slice(0, 2)) * 60 + Number(input.exactTime.slice(3, 5)) : null;
+  const now = Date.now();
+  await env.DB.batch([
+    env.DB.prepare("insert into saved_ideas (id,trip_id,city_id,name,address,categories,priority,notes,source_provider,created_by,version,created_at,updated_at) values (?1,?2,?3,?4,?5,?6,?7,?8,'manual',?9,1,?10,?10)").bind(ideaId, tripId, day.cityId, input.name, input.address || null, JSON.stringify([]), input.priority, input.notes || null, user.id, now),
+    env.DB.prepare("insert into itinerary_items (id,trip_id,day_id,position,kind,saved_idea_id,schedule_mode,period,start_minute,duration_minutes,notes,reservation_status,links,needs_decision,version,created_at,updated_at) values (?1,?2,?3,?4,'activity',?5,?6,?7,?8,?9,?10,'none',?11,0,1,?12,?12)").bind(itemId, tripId, input.dayId, position?.position ?? 0, ideaId, scheduleMode, input.exactTime ? null : input.period, startMinute, input.duration, input.notes || null, JSON.stringify([]), now),
+    env.DB.prepare("insert into activity_events (id,trip_id,actor_user_id,entity_kind,entity_id,action,after,created_at) values (?1,?2,?3,'itinerary_item',?4,'manual_activity_created',?5,?6)").bind(crypto.randomUUID(), tripId, user.id, itemId, JSON.stringify({ name: input.name, dayOrdinal: day.ordinal }), now),
   ]);
   refreshTrip(tripId);
 }
