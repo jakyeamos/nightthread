@@ -2,7 +2,7 @@
 
 ## Current State
 
-Nightthread Production V1 is implemented on the feature branch with a sky-washed light workspace, dusk-photographic welcome surface, light editorial journey map, and an intentional NASA Black Marble Globe at night mode. A second 18-day, eight-city Wanderlog-derived fixture now stress-tests long-trip behavior and records the next product weaknesses. The Cloudflare worker bundle, D1 migration, collaboration room, provider boundaries, deterministic planning rules, responsive demos, and release checks are complete locally.
+Nightthread Production V1 is implemented on the feature branch with a sky-washed light workspace, dusk-photographic welcome surface, light editorial journey map, and an intentional NASA Black Marble Globe at night mode. The 18-day, eight-stop Wanderlog fixture now verifies scroll-aware planner context, real city filtering, long-trip navigation, contextual signals, explicit transfer and lodging semantics, optional duration provenance, provider-health actions, and a controlled stop timeline. The Cloudflare worker bundle, D1 migration, collaboration room, provider boundaries, deterministic planning rules, responsive demos, and release checks are complete locally.
 
 ## Current Position
 
@@ -13,13 +13,14 @@ Nightthread Production V1 is implemented on the feature branch with a sky-washed
 - Collaboration mutation commit: `b22e0bd`
 - Light workspace and night globe commit: `f80cea3`
 - Wanderlog stress fixture commit: `6a5e5de`
+- Long-trip usability commit: `5cda5b6`
 - Build: passing Next.js and OpenNext production builds
-- Tests: 25 unit/contract tests and 15 Chromium critical-flow checks passing
+- Tests: 31 unit/contract tests and 15 Chromium critical-flow checks passing
 - Deployment: Wrangler dry run passes; live resources and credentials are not configured
 
 ## Next Step
 
-Implement scroll-aware active day/city context, real saved-idea city filters, and contextual planning signals as the first iteration from the Wanderlog stress test. Production resource provisioning remains the deployment step after product iteration.
+Provision production Cloudflare resources and provider credentials, then validate OAuth, magic-link delivery, private R2 access, and multi-client Durable Object collaboration in the deployed environment.
 
 ## Blockers
 
@@ -31,7 +32,6 @@ Implement scroll-aware active day/city context, real saved-idea city filters, an
 - External free-tier limits and provider availability may change.
 - Full multi-client realtime, OAuth callback, magic-link delivery, and private-R2 integration require deployed Cloudflare resources for final validation.
 - Wrangler warns that an internal Durable Object is unavailable inside Next's local dev proxy; the custom OpenNext Worker bundle exports it and passes the Wrangler deployment dry run.
-- Long itineraries currently lose city/day context while scrolling; the active-city filter and planning signals are not yet synchronized to the visible day.
 
 ## Recent Progress
 
@@ -44,6 +44,7 @@ Implement scroll-aware active day/city context, real saved-idea city filters, an
 - 2026-07-13: Added membership-checked vote, reaction, invitation regeneration, deletion, and strict-window undo endpoints (`b22e0bd`).
 - 2026-07-13: Replaced app-wide darkness with the light planning system, dusk welcome, protected Geoapify tiles, and NASA night globe (`f80cea3`).
 - 2026-07-13: Added the 18-day, eight-city Wanderlog stress fixture and prioritized the resulting long-trip weaknesses (`6a5e5de`).
+- 2026-07-13: Fixed the Wanderlog stress weaknesses across planner navigation, filtering, signals, trip semantics, health actions, open-day compression, and the overview stop timeline (`5cda5b6`).
 
 ## Quick Tasks Completed
 
@@ -55,3 +56,4 @@ Implement scroll-aware active day/city context, real saved-idea city filters, an
 | 2026-07-13 | Configured project-local Pre-CR checks. |
 | 2026-07-13 | Verified the light workspace and both journey map modes at all three target desktop sizes. |
 | 2026-07-13 | Verified the Wanderlog fixture reaches Day 18 at 1024, 1440, and 1728 widths. |
+| 2026-07-13 | Verified the resolved Wanderlog stress flow, 31 unit tests, both production builds, and Worker dry run. |
