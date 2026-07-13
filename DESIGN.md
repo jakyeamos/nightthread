@@ -2,40 +2,40 @@
 
 ## Direction
 
-Nighttime trip planning at a large desk: the room is dim, destination photography supplies the light, and a crimson thread traces the route across a quiet atlas. The product register is restrained; imagery and the route motif provide the emotion.
+Nightthread is a bright, photography-led planning desk. The workspace uses sky-washed canvas, crisp white surfaces, blue-charcoal ink, restrained indigo controls, and a coral route thread. “Night” describes the optional journey visualization, not the application theme.
+
+Destination photography supplies warmth and atmosphere. Dark UI is confined to the Globe at night stage; planning, navigation, forms, drawers, toasts, errors, and empty states stay light.
 
 ## Color
 
-All production colors use OKLCH.
+All production colors use semantic OKLCH roles.
 
 ```css
 :root {
-  --color-bg: oklch(0.08 0 0);
-  --color-canvas: oklch(0.115 0.012 272);
-  --color-surface: oklch(0.15 0.018 272);
-  --color-surface-raised: oklch(0.205 0.022 272);
-  --color-ink: oklch(0.96 0.006 272);
-  --color-ink-muted: oklch(0.72 0.022 272);
-  --color-border: oklch(0.31 0.025 272);
-  --color-selection: oklch(0.56 0.16 269);
-  --color-thread: oklch(0.56 0.20 10);
-  --color-thread-bright: oklch(0.72 0.16 18);
-  --color-focus: oklch(0.82 0.12 210);
-  --color-success: oklch(0.72 0.14 150);
-  --color-warning: oklch(0.78 0.14 78);
-  --color-danger: oklch(0.64 0.20 25);
+  --canvas: oklch(0.97 0.015 235);
+  --surface: oklch(0.995 0.004 235);
+  --surface-soft: oklch(0.945 0.022 235);
+  --surface-raised: oklch(1 0 0);
+  --line: oklch(0.855 0.028 235);
+  --ink: oklch(0.22 0.032 250);
+  --muted: oklch(0.455 0.035 248);
+  --indigo: oklch(0.48 0.17 276);
+  --thread: oklch(0.62 0.19 18);
+  --thread-soft: oklch(0.94 0.035 18);
+  --globe-space: oklch(0.065 0.018 260);
 }
 ```
 
-- Near-white text on saturated mid-tone fills.
-- Thread colors are reserved for route, active collaboration, and rare emphasis.
-- Indigo marks selection and current context; it is not decorative background color.
-- Photography is never color-washed with gradients. Use a solid scrim only when text requires it.
+- Indigo identifies selection, primary actions, and focus.
+- Coral is reserved for the route, votes, priorities, and rare emphasis. Darker coral is used for small text on light surfaces.
+- Pale blue distinguishes secondary rails and unresolved placeholders.
+- Warning, positive, and destructive states use dedicated semantic foreground and soft-fill pairs.
+- Cream, beige, decorative gradients, glass effects, and dark card stacks are excluded.
 
 ## Typography
 
 - Geist Sans for body, controls, labels, and data.
-- Instrument Serif for destination titles and journey-story headings only.
+- Instrument Serif only for destination titles and journey-story headings.
 - Fixed product scale: 12, 13, 14, 16, 20, 28, 40, and 64px.
 - Display tracking never tighter than `-0.03em`; body copy stays within 70 characters.
 
@@ -44,27 +44,29 @@ All production colors use OKLCH.
 - 1440px planner: 300px ideas rail, flexible itinerary canvas, 360px context rail.
 - 1024px planner: ideas and context become drawers; itinerary stays primary.
 - 8px base spacing; section rhythm uses 16, 24, 32, 48, and 64px.
-- Cards use 12px radii and either a border or a compact shadow, never both decoratively.
-- Overlays follow dropdown, sticky, modal-backdrop, modal, toast, tooltip order.
+- Cards use 8–16px radii and either a border or compact functional shadow.
+- The night globe is a large 65–75vh in-page stage inside the otherwise light overview shell.
 
 ## Components
 
 - Buttons: primary, secondary, quiet, destructive, and icon variants share height, focus ring, loading, and disabled behavior.
-- Ideas: editorial rows with optional thumbnail, priority, city, votes, and scheduled state; not a repeated icon-card grid.
-- Itinerary items: confirmed activities are crisp surfaces; placeholders use softer fills and an unresolved-decision mark.
-- Panels: native dialog/popover or portal-backed drawers to avoid clipping.
-- Empty states teach the next action and always offer manual creation when a provider is unavailable.
+- Ideas: editorial rows with photography, priority, city, votes, and scheduled state.
+- Itinerary items: confirmed activities are crisp white surfaces; placeholders use pale blue fills and an unresolved-decision mark.
+- Panels: solid light surfaces. Drawers, toasts, invitation states, errors, and empty states never switch to dark chrome.
+- Empty states teach the next action and retain manual creation when a provider is unavailable.
 
 ## Motion
 
 - 150–220ms ease-out transitions communicate state changes.
-- Adapt Amicro color-morph for saved/voted state and morph for copy/save completion using `motion/react`.
-- Drag overlays lift slightly without bounce; route drawing may reveal once when the journey changes.
-- Reduced motion removes transform choreography and uses crossfades or instant updates.
+- The Journey / Globe at night control adapts Amicro’s state-driven color morph pattern through `motion/react`.
+- Mode changes crossfade and move the camera over 200ms. Recenter uses the full journey bounds.
+- Reduced motion swaps modes and camera position instantly.
 
 ## Imagery and Map
 
-- Large destination photography supplies atmosphere and must retain source attribution.
-- The overview map shows one pin per city and no attraction pins.
-- Curved GeoJSON routes use a solid underlay plus a seamless crimson yarn raster pattern with round caps.
-- Missing imagery becomes a purposeful color field with city typography, never a generic stock illustration.
+- The public welcome surface pairs a dusk destination photograph with a sky-white sign-in panel; form controls remain light and high contrast.
+- Destination photography retains visible source attribution and is not used as application chrome.
+- Journey mode defaults to a light Geoapify `osm-bright-smooth` raster map served through a membership-checked Worker proxy.
+- Globe at night uses MapLibre globe projection with NASA Black Marble imagery, numbered luminous city pins, and no attraction or navigation overlays.
+- Both modes show one pin per geocoded city. Curved GeoJSON routes use a solid underlay plus a seamless coral yarn pattern with round caps.
+- If nighttime imagery fails, the interface returns to Journey mode with an inline explanation. If WebGL is unavailable, a light explanatory state replaces the canvas.

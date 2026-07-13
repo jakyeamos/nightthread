@@ -1,34 +1,43 @@
 @import "tailwindcss";
 
 :root {
-  color-scheme: dark;
-  --night: oklch(0.08 0 0);
-  --night-raised: oklch(0.125 0.018 285);
-  --night-soft: oklch(0.17 0.025 285);
-  --line: oklch(0.28 0.025 285 / 0.62);
-  --ink: oklch(0.96 0.008 285);
-  --muted: oklch(0.69 0.02 285);
-  --faint: oklch(0.48 0.02 285);
-  --indigo: oklch(0.56 0.18 285);
-  --indigo-soft: oklch(0.26 0.075 285);
-  --yarn: oklch(0.62 0.22 18);
-  --yarn-soft: oklch(0.22 0.07 18);
-  --positive: oklch(0.73 0.14 160);
+  color-scheme: light;
+  --canvas: oklch(0.97 0.015 235);
+  --surface: oklch(0.995 0.004 235);
+  --surface-soft: oklch(0.945 0.022 235);
+  --surface-raised: oklch(1 0 0);
+  --line: oklch(0.855 0.028 235);
+  --ink: oklch(0.22 0.032 250);
+  --muted: oklch(0.455 0.035 248);
+  --faint: oklch(0.59 0.035 242);
+  --indigo: oklch(0.48 0.17 276);
+  --indigo-hover: oklch(0.42 0.18 276);
+  --indigo-soft: oklch(0.91 0.05 276);
+  --thread: oklch(0.62 0.19 18);
+  --thread-hover: oklch(0.55 0.2 18);
+  --thread-soft: oklch(0.94 0.035 18);
+  --positive: oklch(0.47 0.12 158);
+  --positive-soft: oklch(0.93 0.04 158);
+  --warning: oklch(0.5 0.12 72);
+  --warning-soft: oklch(0.94 0.05 72);
+  --danger: oklch(0.5 0.18 25);
+  --danger-soft: oklch(0.94 0.04 25);
+  --globe-space: oklch(0.065 0.018 260);
 }
 
 @theme inline {
-  --color-background: var(--night);
+  --color-background: var(--canvas);
   --color-foreground: var(--ink);
   --font-sans: var(--font-geist-sans);
   --font-serif: var(--font-instrument-serif);
 }
 
 * { box-sizing: border-box; }
-html { background: var(--night); }
+html { background: var(--canvas); }
 body {
   min-height: 100%;
   margin: 0;
-  background: var(--night);
+  background: var(--canvas);
   color: var(--ink);
   font-family: var(--font-geist-sans), sans-serif;
 }
@@ -36,23 +45,21 @@ body {
 a { color: inherit; text-decoration: none; }
 button, input, textarea, select { font: inherit; }
 button { cursor: pointer; }
-:focus-visible { outline: 2px solid oklch(0.76 0.14 285); outline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--indigo); outline-offset: 3px; }
 
 .display { font-family: var(--font-instrument-serif), Georgia, serif; font-weight: 400; }
-.surface { background: var(--night-raised); border: 1px solid var(--line); }
-.eyebrow { color: var(--muted); font-size: .7rem; font-weight: 650; letter-spacing: .14em; text-transform: uppercase; }
+.surface { background: var(--surface); border: 1px solid var(--line); }
+.eyebrow { color: var(--muted); font-size: .7rem; font-weight: 650; letter-spacing: .12em; text-transform: uppercase; }
 .muted { color: var(--muted); }
 .hairline { border-color: var(--line); }
 
-.landing-grain::after {
-  content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .06;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+.welcome-photo {
+  background-image: linear-gradient(180deg, transparent 58%, oklch(0.16 0.04 255 / .72)), url("https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1800&q=88");
+  background-position: center;
+  background-size: cover;
 }
-.hero-photo {
-  background: linear-gradient(90deg, var(--night) 0%, transparent 65%), linear-gradient(0deg, var(--night) 0%, transparent 55%), url("https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1800&q=85") center/cover;
-}
-.yarn-path { stroke: var(--yarn); stroke-width: 3; stroke-linecap: round; fill: none; filter: drop-shadow(0 0 5px oklch(0.62 0.22 18 / .34)); }
-.yarn-path-under { stroke: oklch(0.18 0.06 18); stroke-width: 7; stroke-linecap: round; fill: none; }
+
+.night-globe-stage { background: var(--globe-space); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }

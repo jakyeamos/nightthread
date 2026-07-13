@@ -11,10 +11,10 @@ interface ButtonProps extends Omit<HTMLMotionProps<"button">, "children"> {
 export function Button({ children, className = "", variant = "primary", ...props }: ButtonProps) {
   const reduced = useReducedMotion();
   const variants = {
-    primary: "bg-[var(--ink)] text-[var(--night)] hover:bg-white",
-    secondary: "surface text-[var(--ink)] hover:bg-[var(--night-soft)]",
-    ghost: "text-[var(--muted)] hover:bg-[var(--night-soft)] hover:text-[var(--ink)]",
-    danger: "bg-[var(--yarn-soft)] text-[oklch(0.82_0.13_18)] hover:bg-[oklch(0.27_0.09_18)]",
+    primary: "bg-[var(--indigo)] text-white hover:bg-[var(--indigo-hover)]",
+    secondary: "surface text-[var(--ink)] hover:bg-[var(--surface-soft)]",
+    ghost: "text-[var(--muted)] hover:bg-[var(--surface-soft)] hover:text-[var(--ink)]",
+    danger: "bg-[var(--danger-soft)] text-[var(--danger)] hover:bg-[oklch(0.9_0.06_25)]",
   };
   return (
     <motion.button

@@ -14,7 +14,7 @@ export function VoteButton({ initialCount }: { initialCount: number }) {
       whileTap={reduced ? undefined : { scale: .92 }}
       aria-pressed={active}
       aria-label={`${active ? "Remove" : "Add"} want-to-do vote`}
-      className={`flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold transition-colors ${active ? "bg-[var(--yarn-soft)] text-[oklch(0.82_0.13_18)]" : "bg-[var(--night-soft)] text-[var(--muted)] hover:text-white"}`}
+      className={`flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold transition-colors ${active ? "bg-[var(--thread-soft)] text-[var(--thread-hover)]" : "bg-[var(--surface-soft)] text-[var(--muted)] hover:text-[var(--ink)]"}`}
     >
       <AnimatePresence mode="wait" initial={false}>
         <motion.span key={active ? "check" : "heart"} initial={{ opacity: 0, scale: .6 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: .6 }} transition={{ duration: reduced ? 0 : .16 }}>{active ? <Check size={13} /> : <Heart size={13} />}</motion.span>

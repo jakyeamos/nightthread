@@ -13,24 +13,24 @@ const links = [
   ["Activity", "/activity", Activity],
 ] as const;
 
-export function TripShell({ tripId, children }: { tripId: string; children: ReactNode }) {
+export function TripShell({ tripId, tripName, children }: { tripId: string; tripName: string; children: ReactNode }) {
   const pathname = usePathname();
   const root = `/trips/${tripId}`;
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-50 flex h-16 items-center border-b border-[var(--line)] bg-[oklch(0.08_0_0/.92)] px-5 backdrop-blur-md md:px-7">
+      <header className="sticky top-0 z-50 flex h-16 items-center border-b border-[var(--line)] bg-[var(--surface)] px-5 md:px-7">
         <Link href="/trips"><Brand /></Link>
         <span className="mx-5 hidden h-5 w-px bg-[var(--line)] md:block" />
-        <Link href={root} className="hidden items-center gap-2 text-sm font-medium md:flex"><span className="size-2 rounded-full bg-[var(--yarn)]" />Tokyo after dark</Link>
+        <Link href={root} className="hidden items-center gap-2 text-sm font-medium md:flex"><span className="size-2 rounded-full bg-[var(--thread)]" />{tripName}</Link>
         <nav aria-label="Trip navigation" className="ml-auto flex h-full items-center gap-1">
           {links.map(([label, suffix, Icon]) => {
             const href = `${root}${suffix}`;
             const selected = suffix === "" ? pathname === root : pathname.startsWith(href);
-            return <Link key={label} href={href} aria-current={selected ? "page" : undefined} className={`flex h-10 items-center gap-2 rounded-lg px-3 text-sm transition-colors ${selected ? "bg-[var(--indigo-soft)] text-white" : "text-[var(--muted)] hover:bg-[var(--night-soft)] hover:text-white"}`}><Icon size={16} /><span className="hidden lg:inline">{label}</span></Link>;
+            return <Link key={label} href={href} aria-current={selected ? "page" : undefined} className={`flex h-10 items-center gap-2 rounded-lg px-3 text-sm transition-colors ${selected ? "bg-[var(--indigo-soft)] text-[var(--indigo-hover)]" : "text-[var(--muted)] hover:bg-[var(--surface-soft)] hover:text-[var(--ink)]"}`}><Icon size={16} /><span className="hidden lg:inline">{label}</span></Link>;
           })}
           <span className="mx-1 h-5 w-px bg-[var(--line)]" />
-          <button title="4 collaborators" className="grid size-9 place-items-center rounded-lg text-[var(--muted)] hover:bg-[var(--night-soft)]"><Users size={17} /></button>
-          <Link title="Trip settings" href={`${root}/settings`} className="grid size-9 place-items-center rounded-lg text-[var(--muted)] hover:bg-[var(--night-soft)]"><Settings size={17} /></Link>
+          <button title="4 collaborators" className="grid size-9 place-items-center rounded-lg text-[var(--muted)] hover:bg-[var(--surface-soft)] hover:text-[var(--ink)]"><Users size={17} /></button>
+          <Link title="Trip settings" href={`${root}/settings`} className="grid size-9 place-items-center rounded-lg text-[var(--muted)] hover:bg-[var(--surface-soft)] hover:text-[var(--ink)]"><Settings size={17} /></Link>
         </nav>
       </header>
       {children}
