@@ -2,19 +2,21 @@
 
 ## Current State
 
-Product discovery, design direction, and repository context are committed. Production V1 implementation is ready to begin on a feature branch.
+Nightthread Production V1 is implemented on the feature branch. The application, Cloudflare worker bundle, initial D1 migration, collaboration room, provider boundaries, deterministic planning rules, responsive demo journey, and release checks are complete locally.
 
 ## Current Position
 
-- Phase: foundation
-- Branch: `main`
+- Phase: deployment readiness
+- Branch: `codex/nightthread-v1`
 - Foundation commit: `688418f`
-- Build: not scaffolded
-- Deployment: not configured
+- Implementation commit: `1d55d5e`
+- Build: passing Next.js and OpenNext production builds
+- Tests: 14 unit/contract tests and 5 Chromium critical-flow checks passing
+- Deployment: Wrangler dry run passes; live resources and credentials are not configured
 
 ## Next Step
 
-Scaffold the strict TypeScript Next.js application and Cloudflare bindings on `codex/nightthread-v1`.
+Provision the production D1 database and private R2 bucket, replace the placeholder D1 ID, configure Worker secrets and OAuth/email provider callbacks, then deploy to the stable `workers.dev` address.
 
 ## Blockers
 
@@ -24,15 +26,20 @@ Scaffold the strict TypeScript Next.js application and Cloudflare bindings on `c
 ## Risks
 
 - External free-tier limits and provider availability may change.
-- Full realtime and authentication behavior requires deployed Cloudflare resources for final validation.
+- Full multi-client realtime, OAuth callback, magic-link delivery, and private-R2 integration require deployed Cloudflare resources for final validation.
+- Wrangler warns that an internal Durable Object is unavailable inside Next's local dev proxy; the custom OpenNext Worker bundle exports it and passes the Wrangler deployment dry run.
 
 ## Recent Progress
 
 - 2026-07-13: Committed the product, design, truth, and repository foundation (`688418f`).
 - 2026-07-13: Approved Nightthread Production V1 plan and design direction.
+- 2026-07-13: Implemented the full V1 application and Cloudflare architecture (`1d55d5e`).
+- 2026-07-13: Passed lint, typecheck, 14 unit tests, D1 migration, five browser flows, Next/OpenNext builds, and Worker dry run.
 
 ## Quick Tasks Completed
 
 | Date | Task |
 | --- | --- |
 | 2026-07-13 | Captured product and design context for implementation. |
+| 2026-07-13 | Verified the planner at 1024×768, 1440×900, and 1728×1117. |
+| 2026-07-13 | Applied the 48-command initial migration to local D1 state. |
