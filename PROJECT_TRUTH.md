@@ -36,6 +36,7 @@ Provision the production D1 database and private R2 bucket, replace the placehol
 - 2026-07-13: Implemented the full V1 application and Cloudflare architecture (`1d55d5e`).
 - 2026-07-13: Passed lint, typecheck, 14 unit tests, D1 migration, five browser flows, Next/OpenNext builds, and Worker dry run.
 - 2026-07-13: Added the repository-local Pre-CR security, checklist, and test command contract (`8931425`).
+- 2026-07-13: Kept machine-local AIOS audit output outside project source control (`a96875a`).
 
 ## Quick Tasks Completed
 
