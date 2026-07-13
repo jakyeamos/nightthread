@@ -10,6 +10,7 @@ Nightthread Production V1 is implemented on the feature branch. The application,
 - Branch: `codex/nightthread-v1`
 - Foundation commit: `688418f`
 - Implementation commit: `1d55d5e`
+- Collaboration mutation commit: `b22e0bd`
 - Build: passing Next.js and OpenNext production builds
 - Tests: 14 unit/contract tests and 5 Chromium critical-flow checks passing
 - Deployment: Wrangler dry run passes; live resources and credentials are not configured
@@ -37,6 +38,7 @@ Provision the production D1 database and private R2 bucket, replace the placehol
 - 2026-07-13: Passed lint, typecheck, 14 unit tests, D1 migration, five browser flows, Next/OpenNext builds, and Worker dry run.
 - 2026-07-13: Added the repository-local Pre-CR security, checklist, and test command contract (`8931425`).
 - 2026-07-13: Kept machine-local AIOS audit output outside project source control (`a96875a`).
+- 2026-07-13: Added membership-checked vote, reaction, invitation regeneration, deletion, and strict-window undo endpoints (`b22e0bd`).
 
 ## Quick Tasks Completed
 
