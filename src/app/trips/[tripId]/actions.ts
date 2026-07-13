@@ -52,6 +52,11 @@ const manualActivitySchema = z.object({
   notes: z.string().trim().max(1000).optional(),
 });
 
+const dayLabelSchema = z.object({
+  dayId: z.string().uuid(),
+  label: z.string().trim().min(2).max(120),
+});
+
 const moveCitySchema = z.object({
   cityId: z.string().uuid(),
   direction: z.enum(["up", "down"]),
@@ -243,6 +248,20 @@ export async function createManualActivity(tripId: string, formData: FormData): 
     env.DB.prepare("insert into saved_ideas (id,trip_id,city_id,name,address,categories,priority,notes,source_provider,created_by,version,created_at,updated_at) values (?1,?2,?3,?4,?5,?6,?7,?8,'manual',?9,1,?10,?10)").bind(ideaId, tripId, day.cityId, input.name, input.address || null, JSON.stringify([]), input.priority, input.notes || null, user.id, now),
     env.DB.prepare("insert into itinerary_items (id,trip_id,day_id,position,kind,saved_idea_id,schedule_mode,period,start_minute,duration_minutes,notes,reservation_status,links,needs_decision,version,created_at,updated_at) values (?1,?2,?3,?4,'activity',?5,?6,?7,?8,?9,?10,'none',?11,0,1,?12,?12)").bind(itemId, tripId, input.dayId, position?.position ?? 0, ideaId, scheduleMode, input.exactTime ? null : input.period, startMinute, input.duration, input.notes || null, JSON.stringify([]), now),
     env.DB.prepare("insert into activity_events (id,trip_id,actor_user_id,entity_kind,entity_id,action,after,created_at) values (?1,?2,?3,'itinerary_item',?4,'manual_activity_created',?5,?6)").bind(crypto.randomUUID(), tripId, user.id, itemId, JSON.stringify({ name: input.name, dayOrdinal: day.ordinal }), now),
+  ]);
+  refreshTrip(tripId);
+}
+
+export async function updateDayLabel(tripId: string, formData: FormData): Promise<void> {
+  const { user } = await requireTripMember(tripId);
+  const input = dayLabelSchema.parse(values(formData));
+  const { env } = getCloudflareContext();
+  const day = await env.DB.prepare("select ordinal,label from trip_days where id=?1 and trip_id=?2").bind(input.dayId, tripId).first<{ ordinal: number; label: string | null }>();
+  if (!day) throw new Error("DAY_NOT_IN_TRIP");
+  const now = Date.now();
+  await env.DB.batch([
+    env.DB.prepare("update trip_days set label=?1,version=version+1,updated_at=?2 where id=?3 and trip_id=?4").bind(input.label, now, input.dayId, tripId),
+    env.DB.prepare("insert into activity_events (id,trip_id,actor_user_id,entity_kind,entity_id,action,before,after,created_at) values (?1,?2,?3,'trip_day',?4,'day_updated',?5,?6,?7)").bind(crypto.randomUUID(), tripId, user.id, input.dayId, JSON.stringify({ label: day.label }), JSON.stringify({ name: input.label, dayOrdinal: day.ordinal }), now),
   ]);
   refreshTrip(tripId);
 }

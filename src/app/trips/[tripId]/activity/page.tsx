@@ -22,6 +22,7 @@ function eventCopy(event: EventRow): string {
     days_created: `created ${String(after?.dayCount ?? "the")} planning days`,
     scheduled: `scheduled ${name ?? "an idea"}`,
     manual_activity_created: `added ${name ?? "an activity"} to the itinerary`,
+    day_updated: `named Day ${String(after?.dayOrdinal ?? "")} ${name ?? ""}`.trim(),
     placeholder_created: `added a ${String(after?.placeholderType ?? "planning")} placeholder`,
     placeholder_replaced: `replaced a placeholder with ${name ?? "a saved idea"}`,
     voted: `voted for ${name ?? "a saved idea"}`,
