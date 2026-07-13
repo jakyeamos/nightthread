@@ -2,11 +2,11 @@
 
 ## Current State
 
-Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules, and long-trip demo are implemented on the feature branch. A hands-on authenticated browser test created a real Budapest trip in local D1, but exposed that the planner, saved ideas, settings, and activity surfaces still render Tokyo demo data and do not provide the D1-backed mutations required to enter the itinerary. Release 1 is therefore not production-complete despite the passing fixture and build checks.
+Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules, long-trip fixture, and authenticated D1 planning flows are implemented on the feature branch. Real trips now create or recover stable days and nights, load one shared workspace contract, and persist route stops, manual ideas, votes, scheduling, placeholders, placeholder replacement, deletion undo, settings, invitations, and activity history. The local Budapest trip has been recovered to 18 days and 17 stay nights without Tokyo fixture leakage.
 
 ## Current Position
 
-- Phase: authenticated product implementation
+- Phase: authenticated product verification and itinerary entry
 - Branch: `codex/nightthread-v1`
 - Foundation commit: `688418f`
 - Implementation commit: `1d55d5e`
@@ -15,28 +15,26 @@ Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules
 - Wanderlog stress fixture commit: `6a5e5de`
 - Long-trip usability commit: `5cda5b6`
 - Local test authentication commit: `5491330`
+- Authenticated planning recovery commit: `6f4b4ce`
 - Build: passing Next.js and OpenNext production builds
-- Tests: 33 unit/contract tests and 15 fixture-focused Chromium critical-flow checks passing
+- Tests: 37 unit/contract tests and 15 fixture-focused Chromium critical-flow checks passing
 - Deployment: Wrangler dry run passes; live resources and credentials are not configured
 - Remote: `https://github.com/jakyeamos/nightthread.git`
 
 ## Next Step
 
-Replace demo-backed authenticated surfaces with authoritative D1 loaders and mutations, beginning with city/day/night setup, then saved ideas and itinerary editing. Repeat the full Wanderlog entry through the browser before resuming deployment readiness.
+Resume the hands-on Budapest–Prague–Alps entry using the real route builder and manual idea flow, then add an isolated fresh-D1 browser test that proves persistence across reloads before resuming deployment readiness.
 
 ## Blockers
 
 - Production deployment requires Cloudflare, Google OAuth, Geoapify, Unsplash, Resend, and a verified sending-domain configuration.
-- Real trip entry is blocked after initial creation: authenticated planner, saved ideas, settings, and activity pages still use Tokyo demo data, and visible add controls do not create product records.
-- Trip creation writes the trip and first city but creates no days or stay nights, causing the dated Budapest trip to open with zero days and label Budapest as a transfer stop.
-- The map tile proxy references the Workers Cache API directly, which throws `caches is not defined` under the current Next.js local development runtime.
 
 ## Risks
 
 - External free-tier limits and provider availability may change.
 - Full multi-client realtime, OAuth callback, magic-link delivery, and private-R2 integration require deployed Cloudflare resources for final validation.
 - Wrangler warns that an internal Durable Object is unavailable inside Next's local dev proxy; the custom OpenNext Worker bundle exports it and passes the Wrangler deployment dry run.
-- Fixture-focused browser tests can pass while authenticated product routes remain demo-backed; release gates must include creation and mutation of a fresh D1 trip.
+- The existing Playwright suite remains fixture-focused; authenticated route GETs and the real 18-day recovery action are verified, but a clean-database create-to-reload browser flow is still required.
 
 ## Recent Progress
 
@@ -52,6 +50,8 @@ Replace demo-backed authenticated surfaces with authoritative D1 loaders and mut
 - 2026-07-13: Fixed the Wanderlog stress weaknesses across planner navigation, filtering, signals, trip semantics, health actions, open-day compression, and the overview stop timeline (`5cda5b6`).
 - 2026-07-13: Added a development/demo/loopback-gated local test identity and visible auth error feedback (`5491330`).
 - 2026-07-13: Created a fresh Budapest trip through the browser and confirmed the authenticated planner, ideas, settings, and activity routes are still demo-backed.
+- 2026-07-13: Replaced authenticated demo fallbacks with a shared D1 workspace, persistent planning/settings/activity flows, accurate membership, and local-safe map caching (`6f4b4ce`).
+- 2026-07-13: Recovered the browser-created Budapest trip to 18 stable days and 17 stay nights through the authenticated server action.
 
 ## Quick Tasks Completed
 
@@ -65,3 +65,5 @@ Replace demo-backed authenticated surfaces with authoritative D1 loaders and mut
 | 2026-07-13 | Verified the Wanderlog fixture reaches Day 18 at 1024, 1440, and 1728 widths. |
 | 2026-07-13 | Verified the resolved Wanderlog stress flow, 31 unit tests, both production builds, and Worker dry run. |
 | 2026-07-13 | Hands-on entry created the real trip shell and exposed D1 product-flow blockers hidden by fixtures. |
+| 2026-07-13 | Verified all four authenticated product routes return the real Budapest trip with no Tokyo fallback. |
+| 2026-07-13 | Passed 37 tests, lint, typecheck, Next/OpenNext builds, and the Wrangler deployment dry run. |
