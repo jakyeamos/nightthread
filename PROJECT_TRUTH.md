@@ -2,7 +2,7 @@
 
 ## Current State
 
-Nightthread Production V1 is implemented on the feature branch. The application, Cloudflare worker bundle, initial D1 migration, collaboration room, provider boundaries, deterministic planning rules, responsive demo journey, and release checks are complete locally.
+Nightthread Production V1 is implemented on the feature branch with a sky-washed light workspace, dusk-photographic welcome surface, light editorial journey map, and an intentional NASA Black Marble Globe at night mode. The Cloudflare worker bundle, D1 migration, collaboration room, provider boundaries, deterministic planning rules, responsive demo journey, and release checks are complete locally.
 
 ## Current Position
 
@@ -11,8 +11,9 @@ Nightthread Production V1 is implemented on the feature branch. The application,
 - Foundation commit: `688418f`
 - Implementation commit: `1d55d5e`
 - Collaboration mutation commit: `b22e0bd`
+- Light workspace and night globe commit: `f80cea3`
 - Build: passing Next.js and OpenNext production builds
-- Tests: 14 unit/contract tests and 5 Chromium critical-flow checks passing
+- Tests: 22 unit/contract tests and 12 Chromium critical-flow checks passing
 - Deployment: Wrangler dry run passes; live resources and credentials are not configured
 
 ## Next Step
@@ -39,6 +40,7 @@ Provision the production D1 database and private R2 bucket, replace the placehol
 - 2026-07-13: Added the repository-local Pre-CR security, checklist, and test command contract (`8931425`).
 - 2026-07-13: Kept machine-local AIOS audit output outside project source control (`a96875a`).
 - 2026-07-13: Added membership-checked vote, reaction, invitation regeneration, deletion, and strict-window undo endpoints (`b22e0bd`).
+- 2026-07-13: Replaced app-wide darkness with the light planning system, dusk welcome, protected Geoapify tiles, and NASA night globe (`f80cea3`).
 
 ## Quick Tasks Completed
 
@@ -48,3 +50,4 @@ Provision the production D1 database and private R2 bucket, replace the placehol
 | 2026-07-13 | Verified the planner at 1024×768, 1440×900, and 1728×1117. |
 | 2026-07-13 | Applied the 48-command initial migration to local D1 state. |
 | 2026-07-13 | Configured project-local Pre-CR checks. |
+| 2026-07-13 | Verified the light workspace and both journey map modes at all three target desktop sizes. |
