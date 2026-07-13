@@ -1,6 +1,7 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { createAuth } from "@/auth/server";
+import { isCurrentLocalDemoRequest, LOCAL_DEMO_COOKIE, LOCAL_DEMO_USER } from "@/auth/local-demo";
 import type { TripRole } from "@/domain/types";
 
 export interface AuthenticatedUser {
@@ -16,8 +17,12 @@ export interface TripMembership {
 }
 
 export async function getCurrentUser(): Promise<AuthenticatedUser | null> {
+  const requestHeaders = await headers();
+  if (isCurrentLocalDemoRequest(requestHeaders.get("host")) && (await cookies()).get(LOCAL_DEMO_COOKIE)?.value === "1") {
+    return LOCAL_DEMO_USER;
+  }
   const { env } = getCloudflareContext();
-  const session = await createAuth(env).api.getSession({ headers: await headers() });
+  const session = await createAuth(env).api.getSession({ headers: requestHeaders });
   if (!session) return null;
   return {
     id: session.user.id,

@@ -4,6 +4,7 @@ import { ArrowRight, Check, Mail } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import Link from "next/link";
+import { signInLocalDemo } from "@/auth/local-demo-action";
 import { authClient } from "@/auth/client";
 import { Button } from "@/components/ui/button";
 
@@ -11,13 +12,25 @@ export function SignInCard() {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const localDemoEnabled = process.env.NODE_ENV === "development" && process.env.NEXT_PUBLIC_DEMO_MODE === "true";
 
   async function sendLink(event: React.FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
     setPending(true);
+    setError(null);
     const result = await authClient.signIn.magicLink({ email, callbackURL: "/trips" });
     setPending(false);
     if (!result.error) setSent(true);
+    else setError("Magic-link sign-in is not configured for this environment.");
+  }
+
+  async function signInWithGoogle(): Promise<void> {
+    setPending(true);
+    setError(null);
+    const result = await authClient.signIn.social({ provider: "google", callbackURL: "/trips" });
+    setPending(false);
+    if (result.error) setError("Google sign-in is not configured for this environment.");
   }
 
   return (
@@ -39,8 +52,9 @@ export function SignInCard() {
               <Button disabled={pending} className="w-full" type="submit">{pending ? "Sending…" : "Email me a magic link"}<ArrowRight size={16} /></Button>
             </form>
             <div className="my-5 flex items-center gap-3 text-xs text-[var(--faint)]"><span className="h-px flex-1 bg-[var(--line)]" />or<span className="h-px flex-1 bg-[var(--line)]" /></div>
-            <Button variant="secondary" className="w-full" onClick={() => authClient.signIn.social({ provider: "google", callbackURL: "/trips" })}>Continue with Google</Button>
-            {process.env.NEXT_PUBLIC_DEMO_MODE === "true" && <Link href="/trips/demo/planner" className="mt-4 flex items-center justify-center text-sm text-[var(--muted)] hover:text-[var(--indigo)]">Explore the Tokyo demo <ArrowRight className="ml-1" size={14} /></Link>}
+            <Button disabled={pending} type="button" variant="secondary" className="w-full" onClick={signInWithGoogle}>Continue with Google</Button>
+            {error && <p role="alert" className="mt-3 rounded-xl bg-[var(--danger-soft)] px-3 py-2 text-xs leading-5 text-[var(--danger)]">{error}</p>}
+            {localDemoEnabled && <><form action={signInLocalDemo} className="mt-3"><Button disabled={pending} type="submit" variant="secondary" className="w-full">Continue locally for testing</Button></form><Link href="/trips/demo/planner" className="mt-4 flex items-center justify-center text-sm text-[var(--muted)] hover:text-[var(--indigo)]">Explore the Tokyo demo <ArrowRight className="ml-1" size={14} /></Link></>}
           </motion.div>
         )}
       </AnimatePresence>
