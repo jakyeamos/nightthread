@@ -35,6 +35,7 @@ Provision the production D1 database and private R2 bucket, replace the placehol
 - 2026-07-13: Approved Nightthread Production V1 plan and design direction.
 - 2026-07-13: Implemented the full V1 application and Cloudflare architecture (`1d55d5e`).
 - 2026-07-13: Passed lint, typecheck, 14 unit tests, D1 migration, five browser flows, Next/OpenNext builds, and Worker dry run.
+- 2026-07-13: Added the repository-local Pre-CR security, checklist, and test command contract (`8931425`).
 
 ## Quick Tasks Completed
 
@@ -43,3 +44,4 @@ Provision the production D1 database and private R2 bucket, replace the placehol
 | 2026-07-13 | Captured product and design context for implementation. |
 | 2026-07-13 | Verified the planner at 1024×768, 1440×900, and 1728×1117. |
 | 2026-07-13 | Applied the 48-command initial migration to local D1 state. |
+| 2026-07-13 | Configured project-local Pre-CR checks. |
