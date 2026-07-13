@@ -5,7 +5,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { JourneyExperience } from "@/components/journey-experience";
 import type { JourneyMapCity } from "@/components/journey-map";
-import { demoCities } from "@/lib/demo-data";
+import { getDemoTripFixture } from "@/lib/demo-trips";
 
 interface OverviewCity extends JourneyMapCity {
   image: string | null;
@@ -18,10 +18,12 @@ interface OverviewData {
   totalDays: number;
   totalNights: number;
   cities: OverviewCity[];
+  source?: { label: string; url: string };
 }
 
 async function loadOverview(tripId: string): Promise<OverviewData | null> {
-  if (tripId === "demo") return { name: "Tokyo after dark", startDate: "2026-10-12", endDate: "2026-10-21", totalDays: 10, totalNights: 9, cities: demoCities };
+  const fixture = getDemoTripFixture(tripId);
+  if (fixture) return { name: fixture.name, startDate: fixture.startDate, endDate: fixture.endDate, totalDays: fixture.totalDays, totalNights: fixture.totalNights, cities: fixture.cities, source: fixture.source };
   const { env } = getCloudflareContext();
   const trip = await env.DB.prepare("select name,start_date as startDate,end_date as endDate from trips where id=?1 and deleted_at is null").bind(tripId).first<{ name: string; startDate: string | null; endDate: string | null }>();
   if (!trip) return null;
@@ -53,7 +55,7 @@ export default async function JourneyOverview({ params }: { params: Promise<{ tr
   return (
     <main className="mx-auto max-w-[1440px] px-5 py-10 md:px-10 lg:py-14">
       <div className="grid items-end gap-8 lg:grid-cols-[1fr_auto]">
-        <div><p className="eyebrow">{dateLabel(overview.startDate, overview.endDate)}{countryLabel ? ` · ${countryLabel}` : ""}</p><h1 className="display mt-3 text-6xl tracking-[-.035em] text-balance md:text-7xl">{overview.name}</h1><p className="muted mt-4 max-w-xl leading-7">A shared view of every stop, every night, and the coral thread connecting the journey.</p></div>
+        <div><p className="eyebrow">{dateLabel(overview.startDate, overview.endDate)}{countryLabel ? ` · ${countryLabel}` : ""}</p><h1 className="display mt-3 text-6xl tracking-[-.035em] text-balance md:text-7xl">{overview.name}</h1><p className="muted mt-4 max-w-xl leading-7">A shared view of every stop, every night, and the coral thread connecting the journey.</p>{overview.source && <a href={overview.source.url} target="_blank" rel="noreferrer" className="muted mt-3 inline-block text-xs underline underline-offset-2">{overview.source.label}</a>}</div>
         <Link href={`/trips/${tripId}/planner`} className="inline-flex h-11 items-center gap-2 rounded-xl bg-[var(--indigo)] px-5 text-sm font-semibold text-white transition-colors hover:bg-[var(--indigo-hover)]">Open planner <ArrowRight size={16} /></Link>
       </div>
       <div className="mt-10 grid grid-cols-3 gap-px overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--line)]">

@@ -1,8 +1,8 @@
 import type { IdeaPriority, PlaceholderType, ReservationStatus } from "@/domain/types";
 
 export interface DemoCity { id: string; name: string; country: string; nights: number; lat: number; lon: number; image: string }
-export interface DemoIdea { id: string; name: string; detail: string; cityId: string; priority: IdeaPriority; votes: number; image: string; scheduled: boolean; lat: number; lon: number }
-export interface DemoItem { id: string; dayId: string; title: string; subtitle: string; start: string; duration: number; kind: "activity" | "placeholder"; placeholderType?: PlaceholderType; reservation?: ReservationStatus; cost?: string; ideaId?: string }
+export interface DemoIdea { id: string; name: string; detail: string; cityId: string; priority: IdeaPriority; votes: number; image: string; imageAttribution?: { label: string; url: string }; scheduled: boolean; lat: number; lon: number }
+export interface DemoItem { id: string; dayId: string; title: string; subtitle: string; start?: string; duration: number; kind: "activity" | "placeholder"; placeholderType?: PlaceholderType; reservation?: ReservationStatus; cost?: string; ideaId?: string }
 export interface DemoDay { id: string; ordinal: number; date: string; cityId: string; title: string }
 
 export const demoCities: DemoCity[] = [

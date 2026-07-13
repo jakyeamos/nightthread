@@ -9,10 +9,47 @@ const viewports = [
 const rasterPixel = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=", "base64");
 
 async function mockMapTiles(page: Page, failNight = false): Promise<void> {
-  await page.route("**/api/trips/demo/map-tiles/**", async (route) => route.fulfill({ status: 200, contentType: "image/png", body: rasterPixel }));
+  await page.route("**/api/trips/*/map-tiles/**", async (route) => route.fulfill({ status: 200, contentType: "image/png", body: rasterPixel }));
   await page.route("**/gibs.earthdata.nasa.gov/**", async (route) => {
     if (failNight) await route.fulfill({ status: 503, contentType: "text/plain", body: "unavailable" });
     else await route.fulfill({ status: 200, contentType: "image/png", body: rasterPixel });
+  });
+}
+
+test("Wanderlog fixture stresses long multi-city planning", async ({ page }) => {
+  await mockMapTiles(page);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/trips/demo-wanderlog");
+  await expect(page.getByRole("heading", { name: "Budapest, Prague & the Alps" })).toBeVisible();
+  await expect(page.getByText("18", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("8", { exact: true }).first()).toBeVisible();
+  await expect(page.locator('[data-map-mode="journey"] button[aria-label*="nights"]')).toHaveCount(8);
+  await page.getByRole("radio", { name: "Globe at night" }).click();
+  await expect(page.locator('[data-map-mode="night_globe"] button[aria-label*="nights"]')).toHaveCount(8);
+  await page.screenshot({ path: "/Users/jakyeamos/.codex/visualizations/2026/07/13/019f5d22-cb38-7723-a51b-d4d4ebb9be5b/nightthread-wanderlog-overview-1440.png", fullPage: false });
+
+  await page.goto("/trips/demo-wanderlog/planner");
+  await expect(page.getByRole("heading", { name: "Budapest", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Budapest → Prague" })).toBeVisible();
+  await expect(page.getByText("7 hr 33 min · train or flight undecided")).toBeVisible();
+  const finalDay = page.getByText("DAY 18", { exact: true });
+  await finalDay.scrollIntoViewIfNeeded();
+  await expect(finalDay).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Departure day" })).toBeVisible();
+  await expect(page.locator("body")).not.toHaveCSS("overflow-x", "scroll");
+  await page.screenshot({ path: "/Users/jakyeamos/.codex/visualizations/2026/07/13/019f5d22-cb38-7723-a51b-d4d4ebb9be5b/nightthread-wanderlog-stress-1440.png", fullPage: false });
+});
+
+for (const viewport of [{ width: 1024, height: 768 }, { width: 1728, height: 1117 }]) {
+  test(`Wanderlog fixture reaches the final day at ${viewport.width}x${viewport.height}`, async ({ page }) => {
+    await mockMapTiles(page);
+    await page.setViewportSize(viewport);
+    await page.goto("/trips/demo-wanderlog/planner");
+    const finalDay = page.getByText("DAY 18", { exact: true });
+    await finalDay.scrollIntoViewIfNeeded();
+    await expect(finalDay).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Departure day" })).toBeVisible();
+    await expect(page.locator("body")).not.toHaveCSS("overflow-x", "scroll");
   });
 }
 

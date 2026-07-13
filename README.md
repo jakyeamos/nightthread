@@ -22,6 +22,8 @@ pnpm dev
 
 Set `NEXT_PUBLIC_DEMO_MODE=true` to expose the realistic Tokyo–Kyoto–Osaka journey at `/trips/demo/planner`. It is intentionally separate from authenticated product data.
 
+The larger `/trips/demo-wanderlog` fixture transcribes the public Budapest–Prague–Alps trip documented in [WANDERLOG_STRESS_TEST.md](./WANDERLOG_STRESS_TEST.md). It exists to exercise long-trip navigation, transfers, flexible items, empty days, and eight-city map behavior without writing to D1.
+
 ## Quality gates
 
 ```bash

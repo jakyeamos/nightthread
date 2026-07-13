@@ -1,5 +1,6 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { requireTripMember } from "@/auth/access";
+import { isPublicDemoTripId } from "@/lib/demo-trip-ids";
 import { recordProviderTelemetry } from "@/platform/telemetry";
 
 const tilePart = /^\d+$/;
@@ -32,7 +33,7 @@ export function geoapifyTileUrl(coordinates: TileCoordinates, apiKey: string): s
 }
 
 export async function authorizeTileRequest(tripId: string, demoEnabled: boolean, verify: MembershipVerifier = requireTripMember): Promise<AuthorizationFailure | null> {
-  if (tripId === "demo" && demoEnabled) return null;
+  if (isPublicDemoTripId(tripId) && demoEnabled) return null;
   try {
     await verify(tripId);
     return null;

@@ -29,6 +29,7 @@ describe("map tile contract", () => {
   it("allows only the explicitly enabled public demo to bypass membership", async () => {
     const verify = vi.fn(async () => undefined);
     await expect(authorizeTileRequest("demo", true, verify)).resolves.toBeNull();
+    await expect(authorizeTileRequest("demo-wanderlog", true, verify)).resolves.toBeNull();
     expect(verify).not.toHaveBeenCalled();
     await expect(authorizeTileRequest("private-trip", true, verify)).resolves.toBeNull();
     expect(verify).toHaveBeenCalledWith("private-trip");
