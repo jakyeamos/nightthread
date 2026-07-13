@@ -1,14 +1,18 @@
 import type { IdeaPriority, PlaceholderType, ReservationStatus } from "@/domain/types";
 
-export interface DemoCity { id: string; name: string; country: string; nights: number; lat: number; lon: number; image: string }
+export type DurationSource = "estimate" | "confirmed" | "provider";
+export type PlaceHealth = "active" | "permanently_closed";
+export type StayStatus = "booked" | "needs_confirmation" | "needed";
+
+export interface DemoCity { id: string; name: string; country: string; nights: number; timeZone: string; lat: number; lon: number; image: string; stayStatus?: StayStatus; lodgingName?: string }
 export interface DemoIdea { id: string; name: string; detail: string; cityId: string; priority: IdeaPriority; votes: number; image: string; imageAttribution?: { label: string; url: string }; scheduled: boolean; lat: number; lon: number }
-export interface DemoItem { id: string; dayId: string; title: string; subtitle: string; start?: string; duration: number; kind: "activity" | "placeholder"; placeholderType?: PlaceholderType; reservation?: ReservationStatus; cost?: string; ideaId?: string }
+export interface DemoItem { id: string; dayId: string; title: string; subtitle: string; start?: string; duration?: number; durationSource?: DurationSource; kind: "activity" | "placeholder"; placeholderType?: PlaceholderType; reservation?: ReservationStatus; cost?: string; ideaId?: string; health?: PlaceHealth; healthCheckedAt?: string }
 export interface DemoDay { id: string; ordinal: number; date: string; cityId: string; title: string }
 
 export const demoCities: DemoCity[] = [
-  { id: "tokyo", name: "Tokyo", country: "Japan", nights: 4, lat: 35.6762, lon: 139.6503, image: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=82" },
-  { id: "kyoto", name: "Kyoto", country: "Japan", nights: 3, lat: 35.0116, lon: 135.7681, image: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=82" },
-  { id: "osaka", name: "Osaka", country: "Japan", nights: 2, lat: 34.6937, lon: 135.5023, image: "https://images.unsplash.com/photo-1590559899731-a382839e5549?auto=format&fit=crop&w=1200&q=82" },
+  { id: "tokyo", name: "Tokyo", country: "Japan", nights: 4, timeZone: "Asia/Tokyo", lat: 35.6762, lon: 139.6503, image: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=82", stayStatus: "booked", lodgingName: "Shibuya stay" },
+  { id: "kyoto", name: "Kyoto", country: "Japan", nights: 3, timeZone: "Asia/Tokyo", lat: 35.0116, lon: 135.7681, image: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=82", stayStatus: "needed" },
+  { id: "osaka", name: "Osaka", country: "Japan", nights: 2, timeZone: "Asia/Tokyo", lat: 34.6937, lon: 135.5023, image: "https://images.unsplash.com/photo-1590559899731-a382839e5549?auto=format&fit=crop&w=1200&q=82", stayStatus: "needed" },
 ];
 
 export const demoDays: DemoDay[] = [

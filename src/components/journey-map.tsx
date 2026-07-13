@@ -6,6 +6,7 @@ import { LocateFixed } from "lucide-react";
 import maplibregl, { type LngLatBoundsLike, type StyleSpecification } from "maplibre-gl";
 import { useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
+import { stopStayLabel } from "@/lib/trip-display";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 export type JourneyMapMode = "journey" | "night_globe";
@@ -120,7 +121,7 @@ export function JourneyMap({ cities, tripId, mode = "journey", compact = false, 
       cities.forEach((city, index) => {
         const marker = document.createElement("button");
         marker.type = "button";
-        marker.setAttribute("aria-label", `${index + 1}. ${city.name}, ${city.nights} nights`);
+        marker.setAttribute("aria-label", `${index + 1}. ${city.name}, ${stopStayLabel(city.nights)}`);
         marker.className = mode === "night_globe"
           ? "grid size-8 place-items-center rounded-full border-2 border-[#ff7181] bg-[#0a0d17] text-[10px] font-bold text-white shadow-[0_0_14px_rgba(255,113,129,.7)]"
           : "grid size-8 place-items-center rounded-full border-2 border-[#d64f65] bg-white text-[10px] font-bold text-[#29364a] shadow-[0_2px_6px_rgba(34,51,74,.18)]";
@@ -149,6 +150,6 @@ export function JourneyMap({ cities, tripId, mode = "journey", compact = false, 
     <div ref={container} aria-label={`Route map from ${cities.map((city) => city.name).join(" to ")}`} className="absolute inset-0" />
     {mapUnavailable && <div role="status" className="absolute inset-0 grid place-items-center bg-[var(--surface-soft)] px-8 text-center"><div><p className="text-sm font-semibold">The interactive map is unavailable.</p><p className="muted mt-2 text-xs">Your city sequence remains available above.</p></div></div>}
     {!compact && <button type="button" onClick={recenter} className={`absolute right-4 top-4 flex h-10 items-center gap-2 rounded-xl px-3 text-xs font-semibold ${mode === "night_globe" ? "bg-white/12 text-white hover:bg-white/20" : "bg-white text-[var(--ink)] shadow-[0_2px_8px_oklch(0.35_0.04_245/.14)]"}`}><LocateFixed size={15} />Recenter journey</button>}
-    {selectedCity && !compact && <div className={`absolute bottom-5 left-5 ${mode === "night_globe" ? "text-white" : "text-[var(--ink)]"}`}><p className="text-xs font-semibold">{selectedCity.name}, {selectedCity.country}</p><p className={`mt-1 text-xs ${mode === "night_globe" ? "text-white/65" : "text-[var(--muted)]"}`}>{selectedCity.nights} nights · Stop {cities.findIndex((city) => city.id === selectedCity.id) + 1} of {cities.length}</p></div>}
+    {selectedCity && !compact && <div className={`absolute bottom-5 left-5 ${mode === "night_globe" ? "text-white" : "text-[var(--ink)]"}`}><p className="text-xs font-semibold">{selectedCity.name}, {selectedCity.country}</p><p className={`mt-1 text-xs ${mode === "night_globe" ? "text-white/65" : "text-[var(--muted)]"}`}>{stopStayLabel(selectedCity.nights)} · Stop {cities.findIndex((city) => city.id === selectedCity.id) + 1} of {cities.length}</p></div>}
   </div>;
 }

@@ -3,13 +3,14 @@
 
 import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useDraggable, useDroppable, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
-import { AlertTriangle, CalendarPlus, Check, ChevronDown, CircleEllipsis, Clock3, GripVertical, Lightbulb, Map, MapPin, Plus, Sparkles, Utensils, X } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ArrowRight, BedDouble, Bus, CalendarPlus, Check, ChevronDown, CircleEllipsis, Clock3, GripVertical, Lightbulb, Map as MapIcon, MapPin, Plus, Sparkles, Utensils, X } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { JourneyMap } from "@/components/journey-map";
 import { VoteButton } from "@/components/vote-button";
-import type { DemoDay, DemoIdea, DemoItem } from "@/lib/demo-data";
+import type { DemoCity, DemoDay, DemoIdea, DemoItem } from "@/lib/demo-data";
 import { tokyoDemoTrip, type DemoTripFixture } from "@/lib/demo-trips";
+import { compressEmptyDayRuns, formatDuration, getDaySignals, getVisibleIdeas, groupDaysByCity } from "@/lib/planner-view";
 
 const priorityLabel = { must_do: "Must do", would_like: "Would like", if_time: "If time" } as const;
 
@@ -23,21 +24,33 @@ function IdeaCard({ idea, onSchedule }: { idea: DemoIdea; onSchedule: (idea: Dem
   );
 }
 
-function ItemCard({ item, onDelete }: { item: DemoItem; onDelete: (item: DemoItem) => void }) {
+function ItemCard({ item, healthDismissed, onDelete, onDismissHealth, onReplace }: { item: DemoItem; healthDismissed: boolean; onDelete: (item: DemoItem) => void; onDismissHealth: (itemId: string) => void; onReplace: (item: DemoItem) => void }) {
   const placeholder = item.kind === "placeholder";
-  return <motion.article layout initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: 30 }} className={`group relative grid grid-cols-[60px_1fr_auto] items-start gap-3 rounded-xl border p-3.5 ${placeholder ? "border-dashed border-[oklch(0.72_0.08_276)] bg-[var(--surface-soft)]" : "border-[var(--line)] bg-[var(--surface-raised)]"}`}>
-    <div><p className="text-sm font-semibold tabular-nums">{item.start ?? "Flexible"}</p><p className="muted mt-1 text-[10px]">{item.duration} min</p></div>
-    <div className="min-w-0"><div className="flex items-center gap-2"><h3 className="truncate text-sm font-semibold">{item.title}</h3>{placeholder && <span className="rounded-md bg-[var(--indigo-soft)] px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-[var(--indigo)]">Open</span>}</div><p className="muted mt-1 flex items-center gap-1 text-xs">{placeholder ? <Sparkles size={11} /> : <MapPin size={11} />}{item.subtitle}</p><div className="mt-2 flex flex-wrap gap-2">{item.reservation === "needed" && <span className="rounded-md bg-[var(--thread-soft)] px-2 py-1 text-[10px] font-semibold text-[var(--thread-hover)]">Reservation needed</span>}{item.reservation === "confirmed" && <span className="rounded-md bg-[var(--positive-soft)] px-2 py-1 text-[10px] font-semibold text-[var(--positive)]">Reserved</span>}{item.cost && <span className="muted px-1 py-1 text-[10px]">{item.cost}</span>}</div></div>
+  const travel = item.placeholderType === "travel";
+  const closed = item.health === "permanently_closed" && !healthDismissed;
+  return <motion.article layout="position" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: 30 }} className={`group relative grid grid-cols-[72px_1fr_auto] items-start gap-3 rounded-xl border p-3.5 ${travel ? "border-[oklch(0.7_0.08_235)] bg-[oklch(0.94_0.025_235)]" : placeholder ? "border-dashed border-[oklch(0.72_0.08_276)] bg-[var(--surface-soft)]" : closed ? "border-[oklch(0.77_0.1_72)] bg-[var(--warning-soft)]" : "border-[var(--line)] bg-[var(--surface-raised)]"}`}>
+    <div><p className="text-sm font-semibold tabular-nums">{item.start ?? "Flexible"}</p><p className="muted mt-1 text-[10px] leading-4">{formatDuration(item)}</p></div>
+    <div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><h3 className="truncate text-sm font-semibold">{item.title}</h3>{travel ? <span className="rounded-md bg-white px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-[var(--indigo)]">Transport unresolved</span> : placeholder ? <span className="rounded-md bg-[var(--indigo-soft)] px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-[var(--indigo)]">Needs decision</span> : null}</div><p className="muted mt-1 flex items-center gap-1 text-xs">{travel ? <Bus size={11} /> : placeholder ? <Sparkles size={11} /> : <MapPin size={11} />}{item.subtitle}</p><div className="mt-2 flex flex-wrap gap-2">{item.reservation === "needed" && <span className="rounded-md bg-[var(--thread-soft)] px-2 py-1 text-[10px] font-semibold text-[var(--thread-hover)]">Reservation needed</span>}{item.reservation === "confirmed" && <span className="rounded-md bg-[var(--positive-soft)] px-2 py-1 text-[10px] font-semibold text-[var(--positive)]">Reserved</span>}{item.cost && <span className="muted px-1 py-1 text-[10px]">{item.cost}</span>}</div>
+      {closed && <div className="mt-3 rounded-lg border border-[oklch(0.77_0.1_72)] bg-white p-3" role="status"><p className="text-xs font-semibold text-[var(--warning)]">Provider marks this place permanently closed</p><p className="muted mt-1 text-[10px]">Checked {item.healthCheckedAt ?? "recently"}. Replace it or dismiss this warning.</p><div className="mt-2 flex gap-3"><button onClick={() => onReplace(item)} className="text-xs font-semibold text-[var(--indigo)] hover:text-[var(--indigo-hover)]">Find a replacement</button><button onClick={() => onDismissHealth(item.id)} className="text-xs font-semibold text-[var(--muted)] hover:text-[var(--ink)]">Dismiss</button></div></div>}
+    </div>
     <div className="flex items-center"><button aria-label={`Delete ${item.title}`} onClick={() => onDelete(item)} className="grid size-8 place-items-center rounded-lg text-[var(--faint)] opacity-0 transition-opacity hover:bg-[var(--surface-soft)] hover:text-[var(--ink)] group-hover:opacity-100 focus:opacity-100"><X size={14} /></button><GripVertical className="text-[var(--faint)]" size={15} /></div>
   </motion.article>;
 }
 
-function DayColumn({ day, items, onDelete }: { day: DemoDay; items: DemoItem[]; onDelete: (item: DemoItem) => void }) {
+function DayColumn({ day, items, registerDay, healthDismissals, onDelete, onDismissHealth, onReplace }: { day: DemoDay; items: DemoItem[]; registerDay: (dayId: string, node: HTMLElement | null) => void; healthDismissals: ReadonlySet<string>; onDelete: (item: DemoItem) => void; onDismissHealth: (itemId: string) => void; onReplace: (item: DemoItem) => void }) {
   const droppable = useDroppable({ id: day.id, data: { type: "day" } });
-  return <section ref={droppable.setNodeRef} className={`rounded-2xl border p-3 transition-colors ${droppable.isOver ? "border-[var(--indigo)] bg-[var(--indigo-soft)]" : "border-[var(--line)] bg-[var(--surface)]"}`}>
-    <header className="flex items-center justify-between px-1 py-2"><div><div className="flex items-center gap-2"><span className="rounded-md bg-[var(--indigo-soft)] px-2 py-1 text-[10px] font-semibold text-[var(--indigo)]">DAY {day.ordinal}</span><span className="muted text-xs">{day.date}</span></div><h2 className="mt-2 text-base font-semibold">{day.title}</h2></div><button className="grid size-8 place-items-center rounded-lg text-[var(--muted)] hover:bg-[var(--surface-soft)]"><CircleEllipsis size={17} /></button></header>
-    <div className="mt-2 space-y-2"><AnimatePresence>{items.map((item) => <ItemCard key={item.id} item={item} onDelete={onDelete} />)}</AnimatePresence><button className="flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[var(--line)] text-xs text-[var(--muted)] hover:border-[var(--faint)] hover:text-[var(--ink)]"><Plus size={14} />Add activity or placeholder</button></div>
+  const setNode = useCallback((node: HTMLElement | null) => { droppable.setNodeRef(node); registerDay(day.id, node); }, [day.id, droppable, registerDay]);
+  return <section ref={setNode} data-day-id={day.id} className={`scroll-mt-36 rounded-2xl border p-3 transition-colors ${droppable.isOver ? "border-[var(--indigo)] bg-[var(--indigo-soft)]" : "border-[var(--line)] bg-[var(--surface)]"}`}>
+    <header className="flex items-center justify-between px-1 py-2"><div><div className="flex items-center gap-2"><span className="rounded-md bg-[var(--indigo-soft)] px-2 py-1 text-[10px] font-semibold text-[var(--indigo)]">DAY {day.ordinal}</span><span className="muted text-xs">{day.date}</span></div><h2 className="mt-2 text-base font-semibold">{day.title}</h2></div><button aria-label={`More options for Day ${day.ordinal}`} className="grid size-8 place-items-center rounded-lg text-[var(--muted)] hover:bg-[var(--surface-soft)]"><CircleEllipsis size={17} /></button></header>
+    <div className="mt-2 space-y-2"><AnimatePresence>{items.map((item) => <ItemCard key={item.id} item={item} healthDismissed={healthDismissals.has(item.id)} onDelete={onDelete} onDismissHealth={onDismissHealth} onReplace={onReplace} />)}</AnimatePresence><button className="flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[var(--line)] text-xs text-[var(--muted)] hover:border-[var(--faint)] hover:text-[var(--ink)]"><Plus size={14} />Add activity or placeholder</button></div>
   </section>;
+}
+
+function StayLabel({ city }: { city: DemoCity }) {
+  if (city.nights === 0) return <span className="flex items-center gap-1 text-[var(--thread-hover)]"><Bus size={12} />Transfer stop</span>;
+  if (city.stayStatus === "booked") return <span className="flex items-center gap-1 text-[var(--positive)]"><BedDouble size={12} />{city.lodgingName ?? "Lodging booked"}</span>;
+  if (city.stayStatus === "needs_confirmation") return <span className="flex items-center gap-1 text-[var(--warning)]"><BedDouble size={12} />Confirm lodging</span>;
+  return <span className="flex items-center gap-1 text-[var(--thread-hover)]"><BedDouble size={12} />Lodging needed</span>;
 }
 
 export function Planner({ fixture = tokyoDemoTrip }: { fixture?: DemoTripFixture }) {
@@ -50,52 +63,136 @@ export function Planner({ fixture = tokyoDemoTrip }: { fixture?: DemoTripFixture
 function PlannerContent({ fixture }: { fixture: DemoTripFixture }) {
   const [ideas, setIdeas] = useState(fixture.ideas);
   const [items, setItems] = useState(fixture.items);
+  const [activeDayId, setActiveDayId] = useState(fixture.days[0]?.id ?? "");
+  const [allCityIdeas, setAllCityIdeas] = useState(false);
   const [toast, setToast] = useState<DemoItem | null>(null);
   const [ideasOpen, setIdeasOpen] = useState(false);
   const [assistantOpen, setAssistantOpen] = useState(false);
+  const [collapsedCities, setCollapsedCities] = useState<Set<string>>(new Set());
+  const [expandedRuns, setExpandedRuns] = useState<Set<string>>(new Set());
+  const [healthDismissals, setHealthDismissals] = useState<Set<string>>(new Set());
+  const scrollRef = useRef<HTMLElement | null>(null);
+  const dayNodes = useRef(new Map<string, HTMLElement>());
   const reduced = useReducedMotion();
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
+  const groups = useMemo(() => groupDaysByCity(fixture.days, fixture.cities), [fixture.cities, fixture.days]);
+  const activeDay = fixture.days.find((day) => day.id === activeDayId) ?? fixture.days[0];
+  const activeCity = fixture.cities.find((city) => city.id === activeDay?.cityId) ?? fixture.cities[0];
+  const activeGroupIndex = groups.findIndex((group) => group.city.id === activeCity?.id);
+  const visibleIdeas = getVisibleIdeas(ideas, activeCity?.id ?? "", allCityIdeas);
+  const signals = getDaySignals(activeDay?.id ?? "", items);
+  const suggestionIdea = ideas.find((idea) => !idea.scheduled && idea.cityId === activeCity?.id);
+  const travelChoices = items.filter((item) => item.placeholderType === "travel").length;
+  const lodgingNeeds = fixture.cities.filter((city) => city.nights > 0 && city.stayStatus !== "booked").length;
 
-  function schedule(idea: DemoIdea, dayId = fixture.days[1]?.id ?? fixture.days[0]?.id): void {
-    if (!dayId) return;
-    if (idea.scheduled) return;
-    setIdeas((current) => current.map((entry) => entry.id === idea.id ? { ...entry, scheduled: true } : entry));
-    setItems((current) => [...current, { id: `scheduled-${idea.id}`, dayId, title: idea.name, subtitle: idea.detail.split(" · ")[0], start: "17:00", duration: 90, kind: "activity", ideaId: idea.id }]);
+  const registerDay = useCallback((dayId: string, node: HTMLElement | null): void => {
+    if (node) dayNodes.current.set(dayId, node);
+    else dayNodes.current.delete(dayId);
+  }, []);
+
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+    let frame = 0;
+    const updateActiveDay = (): void => {
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(() => {
+        const bottomGap = container.scrollHeight - container.scrollTop - container.clientHeight;
+        const lastRenderedDay = [...fixture.days].reverse().find((day) => dayNodes.current.has(day.id));
+        if (bottomGap < 8 && lastRenderedDay) {
+          setActiveDayId((current) => current === lastRenderedDay.id ? current : lastRenderedDay.id);
+          return;
+        }
+        const anchor = container.getBoundingClientRect().top + 150;
+        let closestId = activeDayId;
+        let closestDistance = Number.POSITIVE_INFINITY;
+        for (const day of fixture.days) {
+          const node = dayNodes.current.get(day.id);
+          if (!node) continue;
+          const distance = Math.abs(node.getBoundingClientRect().top - anchor);
+          if (distance < closestDistance) { closestDistance = distance; closestId = day.id; }
+        }
+        setActiveDayId((current) => current === closestId ? current : closestId);
+      });
+    };
+    updateActiveDay();
+    container.addEventListener("scroll", updateActiveDay, { passive: true });
+    return () => { window.cancelAnimationFrame(frame); container.removeEventListener("scroll", updateActiveDay); };
+  }, [activeDayId, fixture.days]);
+
+  function runContaining(dayId: string): string | undefined {
+    for (const group of groups) {
+      const entry = compressEmptyDayRuns(group.days, items).find((candidate) => candidate.kind === "empty_run" && candidate.days.some((day) => day.id === dayId));
+      if (entry?.kind === "empty_run") return entry.id;
+    }
+    return undefined;
   }
+
+  function jumpToDay(dayId: string): void {
+    const day = fixture.days.find((candidate) => candidate.id === dayId);
+    if (!day) return;
+    setActiveDayId(dayId);
+    setCollapsedCities((current) => { const next = new Set(current); next.delete(day.cityId); return next; });
+    const runId = runContaining(dayId);
+    if (runId) setExpandedRuns((current) => new Set(current).add(runId));
+    window.requestAnimationFrame(() => window.requestAnimationFrame(() => dayNodes.current.get(dayId)?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" })));
+  }
+
+  function jumpToCity(index: number): void {
+    const group = groups[index];
+    if (group?.days[0]) jumpToDay(group.days[0].id);
+  }
+
+  function schedule(idea: DemoIdea, dayId = activeDay?.id ?? fixture.days[0]?.id): void {
+    if (!dayId || idea.scheduled) return;
+    setIdeas((current) => current.map((entry) => entry.id === idea.id ? { ...entry, scheduled: true } : entry));
+    setItems((current) => [...current, { id: `scheduled-${idea.id}`, dayId, title: idea.name, subtitle: idea.detail.split(" · ")[0], start: "17:00", duration: 90, durationSource: "estimate", kind: "activity", ideaId: idea.id }]);
+  }
+
   function dragEnd(event: DragEndEvent): void {
     const idea = ideas.find((entry) => entry.id === String(event.active.id));
     if (idea && event.over?.data.current?.type === "day") schedule(idea, String(event.over.id));
   }
+
   function remove(item: DemoItem): void { setItems((current) => current.filter((entry) => entry.id !== item.id)); setToast(item); window.setTimeout(() => setToast((current) => current?.id === item.id ? null : current), 10_000); }
   function undo(): void { if (toast) setItems((current) => [...current, toast]); setToast(null); }
-  const signalDay = fixture.days[1] ?? fixture.days[0];
-  const totalMinutes = useMemo(() => items.filter((item) => item.dayId === signalDay?.id).reduce((sum, item) => sum + item.duration, 0), [items, signalDay?.id]);
-  const reservationNeeded = items.find((item) => item.reservation === "needed");
-  const openDecisions = items.filter((item) => item.kind === "placeholder").length;
-  const suggestionIdea = ideas.find((idea) => !idea.scheduled);
-  const firstCity = fixture.cities[0];
+  function replace(item: DemoItem): void { remove(item); setAllCityIdeas(false); setIdeasOpen(true); }
 
   return <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={dragEnd}>
     <main className="grid h-[calc(100vh-4rem)] min-h-[680px] xl:grid-cols-[300px_minmax(520px,1fr)_360px]">
       <aside className={`${ideasOpen ? "fixed inset-y-16 left-0 z-40 block w-[300px] shadow-[0_8px_18px_oklch(0.35_0.04_245/.16)]" : "hidden"} overflow-y-auto border-r border-[var(--line)] bg-[var(--surface-soft)] p-4 xl:static xl:block xl:w-auto xl:shadow-none`}>
-        <div className="flex items-center justify-between"><div><p className="eyebrow">Discovery rail</p><h2 className="mt-1 text-lg font-semibold">Saved ideas</h2></div><button className="xl:hidden" onClick={() => setIdeasOpen(false)}><X size={18} /></button></div>
-        <div className="mt-4 flex gap-2"><button className="rounded-lg bg-[var(--indigo)] px-3 py-2 text-xs text-white">{firstCity?.name ?? "Trip"} · {ideas.filter((idea) => idea.cityId === firstCity?.id).length}</button><button className="rounded-lg px-3 py-2 text-xs text-[var(--muted)] hover:bg-white">All cities</button></div>
-        <div className="mt-4 space-y-3">{ideas.map((idea) => <IdeaCard key={idea.id} idea={idea} onSchedule={schedule} />)}</div>
+        <div className="flex items-center justify-between"><div><p className="eyebrow">Discovery rail</p><h2 className="mt-1 text-lg font-semibold">Saved ideas</h2></div><button aria-label="Close saved ideas" className="xl:hidden" onClick={() => setIdeasOpen(false)}><X size={18} /></button></div>
+        <div className="mt-4 grid grid-cols-2 rounded-xl bg-[var(--surface)] p-1" aria-label="Saved idea city filter"><button aria-pressed={!allCityIdeas} onClick={() => setAllCityIdeas(false)} className={`rounded-lg px-2 py-2 text-xs font-semibold ${!allCityIdeas ? "bg-[var(--indigo)] text-white" : "text-[var(--muted)] hover:bg-[var(--surface-soft)]"}`}>{activeCity?.name ?? "Current city"} · {ideas.filter((idea) => idea.cityId === activeCity?.id).length}</button><button aria-pressed={allCityIdeas} onClick={() => setAllCityIdeas(true)} className={`rounded-lg px-2 py-2 text-xs font-semibold ${allCityIdeas ? "bg-[var(--indigo)] text-white" : "text-[var(--muted)] hover:bg-[var(--surface-soft)]"}`}>All cities · {ideas.length}</button></div>
+        <div className="mt-4 space-y-3">{visibleIdeas.length > 0 ? visibleIdeas.map((idea) => <IdeaCard key={idea.id} idea={idea} onSchedule={schedule} />) : <div className="rounded-xl border border-dashed border-[var(--line)] bg-[var(--surface)] p-4 text-center"><p className="text-sm font-semibold">No saved ideas here yet</p><p className="muted mt-1 text-xs">Add a place for {activeCity?.name ?? "this city"}, or view all cities.</p></div>}</div>
         <button className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[var(--line)] text-xs text-[var(--muted)] hover:text-[var(--ink)]"><Plus size={14} />Add a place manually</button>
         {fixture.source && <a href={fixture.source.url} target="_blank" rel="noreferrer" className="muted mt-4 block text-[10px] underline underline-offset-2">{fixture.source.label}</a>}
       </aside>
 
-      <section className="overflow-y-auto bg-[var(--canvas)]">
-        <header className="sticky top-0 z-20 flex h-[72px] items-center border-b border-[var(--line)] bg-[var(--surface)] px-5 md:px-7"><div><div className="flex items-center gap-2"><h1 className="text-lg font-semibold">{firstCity?.name ?? fixture.name}</h1><ChevronDown size={15} className="text-[var(--muted)]" /></div><p className="muted mt-0.5 text-xs">{fixture.dateLabel} · {fixture.timeZoneLabel}</p></div><div className="ml-auto flex gap-2"><button onClick={() => setIdeasOpen(true)} className="grid size-9 place-items-center rounded-lg surface xl:hidden" title="Open saved ideas"><Lightbulb size={16} /></button><button onClick={() => setAssistantOpen(true)} className="grid size-9 place-items-center rounded-lg surface xl:hidden" title="Open map and suggestions"><Map size={16} /></button><div className="hidden items-center -space-x-2 md:flex">{["M","J","P"].map((name,index) => <span key={name} className={`grid size-8 place-items-center rounded-full border-2 border-[var(--surface)] text-[10px] font-bold text-white ${index === 0 ? "bg-[oklch(0.52_0.11_18)]" : index === 1 ? "bg-[oklch(0.43_0.1_285)]" : "bg-[oklch(0.43_0.1_160)]"}`}>{name}</span>)}</div></div></header>
-        <div className="mx-auto max-w-3xl space-y-5 p-4 md:p-7">{fixture.days.map((day) => <DayColumn key={day.id} day={day} items={items.filter((item) => item.dayId === day.id)} onDelete={remove} />)}</div>
+      <section ref={scrollRef} className="overflow-y-auto bg-[var(--canvas)]">
+        <header data-active-city={activeCity?.id} data-active-day={activeDay?.id} className="sticky top-0 z-20 border-b border-[var(--line)] bg-[var(--surface)] px-4 py-3 md:px-6">
+          <div className="flex items-center gap-3"><div className="min-w-0"><div className="flex items-center gap-2"><h1 className="truncate text-lg font-semibold">{activeCity?.name ?? fixture.name}</h1><span className="rounded-md bg-[var(--indigo-soft)] px-2 py-1 text-[10px] font-semibold text-[var(--indigo)]">Day {activeDay?.ordinal ?? 1}</span></div><p className="muted mt-0.5 truncate text-xs">{activeDay?.date} · {activeCity?.timeZone ?? fixture.timeZoneLabel}</p></div><div className="ml-auto flex gap-2"><button onClick={() => setIdeasOpen(true)} className="grid size-9 place-items-center rounded-lg surface xl:hidden" title="Open saved ideas"><Lightbulb size={16} /></button><button onClick={() => setAssistantOpen(true)} className="grid size-9 place-items-center rounded-lg surface xl:hidden" title="Open map and suggestions"><MapIcon size={16} /></button><div className="hidden items-center -space-x-2 md:flex">{["M","J","P"].map((name,index) => <span key={name} className={`grid size-8 place-items-center rounded-full border-2 border-[var(--surface)] text-[10px] font-bold text-white ${index === 0 ? "bg-[oklch(0.52_0.11_18)]" : index === 1 ? "bg-[oklch(0.43_0.1_285)]" : "bg-[oklch(0.43_0.1_160)]"}`}>{name}</span>)}</div></div></div>
+          <nav className="mt-3 flex items-center gap-2" aria-label="Trip day navigation"><button aria-label="Previous city" disabled={activeGroupIndex <= 0} onClick={() => jumpToCity(activeGroupIndex - 1)} className="grid size-8 shrink-0 place-items-center rounded-lg border border-[var(--line)] text-[var(--muted)] hover:bg-[var(--surface-soft)] disabled:cursor-default disabled:opacity-35"><ArrowLeft size={14} /></button><div className="flex min-w-0 flex-1 gap-1 overflow-x-auto pb-1">{groups.map((group, index) => <button key={`${group.city.id}-${index}`} onClick={() => jumpToCity(index)} aria-current={group.city.id === activeCity?.id ? "location" : undefined} className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold ${group.city.id === activeCity?.id ? "bg-[var(--indigo)] text-white" : "text-[var(--muted)] hover:bg-[var(--surface-soft)]"}`}>{group.city.name} · {group.days[0].ordinal}{group.days.length > 1 ? `–${group.days.at(-1)?.ordinal}` : ""}</button>)}</div><select aria-label="Jump to day" value={activeDay?.id} onChange={(event) => jumpToDay(event.target.value)} className="h-8 max-w-[104px] rounded-lg border border-[var(--line)] bg-white px-2 text-xs font-semibold text-[var(--ink)]">{fixture.days.map((day) => <option key={day.id} value={day.id}>Day {day.ordinal}</option>)}</select><button aria-label="Next city" disabled={activeGroupIndex >= groups.length - 1} onClick={() => jumpToCity(activeGroupIndex + 1)} className="grid size-8 shrink-0 place-items-center rounded-lg border border-[var(--line)] text-[var(--muted)] hover:bg-[var(--surface-soft)] disabled:cursor-default disabled:opacity-35"><ArrowRight size={14} /></button></nav>
+        </header>
+        <div className="mx-auto max-w-3xl space-y-7 p-4 md:p-7">{groups.map((group, groupIndex) => {
+          const collapsed = collapsedCities.has(group.city.id);
+          const entries = compressEmptyDayRuns(group.days, items);
+          return <section key={`${group.city.id}-${groupIndex}`} aria-labelledby={`city-${group.city.id}-${groupIndex}`}><div className="mb-3 flex items-center justify-between border-b border-[var(--line)] pb-3"><div><p className="eyebrow">Days {group.days[0].ordinal}{group.days.length > 1 ? `–${group.days.at(-1)?.ordinal}` : ""}</p><h2 id={`city-${group.city.id}-${groupIndex}`} className="mt-1 text-lg font-semibold">{group.city.name}</h2><p className="muted mt-1 text-xs"><StayLabel city={group.city} /></p></div><button aria-expanded={!collapsed} onClick={() => setCollapsedCities((current) => { const next = new Set(current); if (next.has(group.city.id)) next.delete(group.city.id); else next.add(group.city.id); return next; })} className="flex items-center gap-1 rounded-lg px-3 py-2 text-xs font-semibold text-[var(--muted)] hover:bg-[var(--surface)] hover:text-[var(--ink)]">{collapsed ? "Expand" : "Collapse"}<ChevronDown className={`transition-transform ${collapsed ? "-rotate-90" : ""}`} size={14} /></button></div>{collapsed ? <button onClick={() => setCollapsedCities((current) => { const next = new Set(current); next.delete(group.city.id); return next; })} className="flex w-full items-center justify-between rounded-xl border border-dashed border-[var(--line)] bg-[var(--surface)] px-4 py-4 text-left"><span><strong className="text-sm">{group.days.length} day{group.days.length === 1 ? "" : "s"} collapsed</strong><span className="muted ml-2 text-xs">{group.city.name}</span></span><ArrowRight size={15} /></button> : <div className="space-y-5">{entries.map((entry) => {
+            if (entry.kind === "day") return <DayColumn key={entry.day.id} day={entry.day} items={items.filter((item) => item.dayId === entry.day.id)} registerDay={registerDay} healthDismissals={healthDismissals} onDelete={remove} onDismissHealth={(itemId) => setHealthDismissals((current) => new Set(current).add(itemId))} onReplace={replace} />;
+            const expanded = expandedRuns.has(entry.id);
+            if (expanded) return <div key={entry.id} className="space-y-5">{entry.days.map((day) => <DayColumn key={day.id} day={day} items={[]} registerDay={registerDay} healthDismissals={healthDismissals} onDelete={remove} onDismissHealth={(itemId) => setHealthDismissals((current) => new Set(current).add(itemId))} onReplace={replace} />)}<button onClick={() => setExpandedRuns((current) => { const next = new Set(current); next.delete(entry.id); return next; })} className="mx-auto block rounded-lg px-3 py-2 text-xs font-semibold text-[var(--muted)] hover:bg-[var(--surface)]">Compress open days</button></div>;
+            return <section key={entry.id} ref={(node) => registerDay(entry.days[0].id, node)} className="rounded-2xl border border-dashed border-[var(--line)] bg-[var(--surface-soft)] p-5"><div className="flex items-center justify-between gap-4"><div><p className="eyebrow">Days {entry.days[0].ordinal}–{entry.days.at(-1)?.ordinal}</p><h3 className="mt-1 text-base font-semibold">{entry.days.length} open days in {group.city.name}</h3><p className="muted mt-1 text-xs">Keep them flexible, or expand to plan each day.</p></div><button onClick={() => setExpandedRuns((current) => new Set(current).add(entry.id))} className="shrink-0 rounded-lg bg-[var(--surface)] px-3 py-2 text-xs font-semibold text-[var(--indigo)] hover:bg-white">Plan these days</button></div></section>;
+          })}</div>}</section>;
+        })}</div>
       </section>
 
       <aside className={`${assistantOpen ? "fixed inset-y-16 right-0 z-40 block w-[360px] shadow-[0_8px_18px_oklch(0.35_0.04_245/.16)]" : "hidden"} overflow-y-auto border-l border-[var(--line)] bg-[var(--surface)] xl:static xl:block xl:w-auto xl:shadow-none`}>
         <div className="h-[250px] border-b border-[var(--line)]"><JourneyMap cities={fixture.cities} tripId={fixture.id} compact /></div>
-        <div className="p-5"><div className="flex items-center justify-between"><div><p className="eyebrow">Planning signals</p><h2 className="mt-1 text-lg font-semibold">{totalMinutes > 360 ? "A full day" : "A lighter day"}</h2></div><button className="xl:hidden" onClick={() => setAssistantOpen(false)}><X size={18} /></button></div>
-          <article className="mt-5 rounded-xl bg-[var(--indigo-soft)] p-4"><div className="flex gap-3"><span className="grid size-8 shrink-0 place-items-center rounded-lg bg-white text-[var(--indigo)]"><Clock3 size={16} /></span><div><h3 className="text-sm font-semibold">Day {signalDay?.ordinal ?? 1} has {totalMinutes > 360 ? "a lot in it" : "room"}</h3><p className="muted mt-1 text-xs leading-5">{totalMinutes} minutes planned. {totalMinutes > 360 ? "Check transfers and recovery time before adding more." : `${suggestionIdea?.name ?? "Another idea"} may still fit.`}</p>{suggestionIdea && totalMinutes <= 360 && <button onClick={() => schedule(suggestionIdea)} className="mt-3 text-xs font-semibold text-[var(--indigo)] hover:text-[var(--indigo-hover)]">Add to Day {signalDay?.ordinal ?? 1} →</button>}</div></div></article>
-          {reservationNeeded && <article className="mt-3 rounded-xl border border-[var(--line)] p-4"><div className="flex gap-3"><AlertTriangle className="mt-0.5 shrink-0 text-[var(--warning)]" size={17} /><div><h3 className="text-sm font-semibold">Reservation to make</h3><p className="muted mt-1 text-xs leading-5">{reservationNeeded.title} is scheduled, but not reserved yet.</p><button className="mt-3 text-xs font-semibold text-[var(--muted)] hover:text-[var(--ink)]">Mark reserved</button></div></div></article>}
-          {openDecisions > 0 && <article className="mt-3 rounded-xl border border-[var(--line)] p-4"><div className="flex gap-3"><Utensils className="mt-0.5 shrink-0 text-[var(--thread)]" size={17} /><div><h3 className="text-sm font-semibold">{openDecisions} open decisions</h3><p className="muted mt-1 text-xs leading-5">Travel, recovery, or buffer placeholders still need review.</p></div></div></article>}
+        <div className="p-5"><div className="flex items-center justify-between"><div><p className="eyebrow">Planning signals · Day {activeDay?.ordinal ?? 1}</p><h2 className="mt-1 text-lg font-semibold">{signals.totalMinutes > 360 ? "A full day" : signals.totalMinutes > 0 ? "A lighter day" : "A day with room"}</h2></div><button aria-label="Close planning signals" className="xl:hidden" onClick={() => setAssistantOpen(false)}><X size={18} /></button></div>
+          <article className="mt-5 rounded-xl bg-[var(--indigo-soft)] p-4"><div className="flex gap-3"><span className="grid size-8 shrink-0 place-items-center rounded-lg bg-white text-[var(--indigo)]"><Clock3 size={16} /></span><div><h3 className="text-sm font-semibold">Day {activeDay?.ordinal ?? 1} {signals.totalMinutes > 360 ? "has a lot in it" : "has room"}</h3><p className="muted mt-1 text-xs leading-5">{signals.totalMinutes} known minutes planned{signals.unknownDurations > 0 ? ` · ${signals.unknownDurations} duration${signals.unknownDurations === 1 ? "" : "s"} open` : ""}. {signals.totalMinutes > 360 ? "Check transfers and recovery time before adding more." : `${suggestionIdea?.name ?? "Another idea"} may still fit.`}</p>{suggestionIdea && signals.totalMinutes <= 360 && <button onClick={() => schedule(suggestionIdea)} className="mt-3 text-xs font-semibold text-[var(--indigo)] hover:text-[var(--indigo-hover)]">Add to Day {activeDay?.ordinal ?? 1} →</button>}</div></div></article>
+          {signals.reservationNeeded && <article className="mt-3 rounded-xl border border-[var(--line)] p-4"><div className="flex gap-3"><AlertTriangle className="mt-0.5 shrink-0 text-[var(--warning)]" size={17} /><div><h3 className="text-sm font-semibold">Reservation to make</h3><p className="muted mt-1 text-xs leading-5">{signals.reservationNeeded.title} is scheduled, but not reserved yet.</p><button className="mt-3 text-xs font-semibold text-[var(--muted)] hover:text-[var(--ink)]">Mark reserved</button></div></div></article>}
+          {signals.openDecisions > 0 && <article className="mt-3 rounded-xl border border-[var(--line)] p-4"><div className="flex gap-3"><Utensils className="mt-0.5 shrink-0 text-[var(--thread)]" size={17} /><div><h3 className="text-sm font-semibold">{signals.openDecisions} open decision{signals.openDecisions === 1 ? "" : "s"} today</h3><p className="muted mt-1 text-xs leading-5">Travel, recovery, or buffer placeholders on Day {activeDay?.ordinal ?? 1} still need review.</p></div></div></article>}
+          {signals.closedPlaces.length > 0 && <article className="mt-3 rounded-xl border border-[oklch(0.77_0.1_72)] bg-[var(--warning-soft)] p-4"><h3 className="text-sm font-semibold">Closed place on this day</h3><p className="muted mt-1 text-xs">Replace or dismiss it in the itinerary.</p></article>}
+          <section className="mt-5 border-t border-[var(--line)] pt-4" aria-label="Trip-wide issues"><p className="eyebrow">Across the trip</p><div className="mt-2 grid grid-cols-2 gap-2"><div className="rounded-lg bg-[var(--surface-soft)] p-3"><strong className="text-lg">{travelChoices}</strong><p className="muted mt-1 text-[10px]">transport choices open</p></div><div className="rounded-lg bg-[var(--surface-soft)] p-3"><strong className="text-lg">{lodgingNeeds}</strong><p className="muted mt-1 text-[10px]">stays need lodging</p></div></div></section>
           <p className="muted mt-5 text-[10px] leading-4">Suggestions are deterministic and based only on your itinerary, distances, and time windows.</p>
         </div>
       </aside>

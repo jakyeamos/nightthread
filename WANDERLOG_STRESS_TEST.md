@@ -22,20 +22,20 @@ The public trip was transcribed into a local, non-persisted fixture at `/trips/d
 - Flexible items no longer require a fabricated exact time.
 - Fixture imagery and content link back to the source trip instead of receiving false Unsplash attribution.
 
-## Weaknesses exposed
+## Weaknesses resolved
 
-| Priority | Weakness | Evidence | Iteration |
-| --- | --- | --- | --- |
-| P0 | Planner context does not follow the active day | The sticky header still says Budapest while Day 18 in Rome is visible. The timezone copy becomes a generic disclaimer. | Track the centered day, update city/timezone context, and add a city/day jump control. |
-| P0 | Saved-idea city filters are presentational | “Budapest · 2” remains selected while Kandersteg and Rome ideas are visible. | Implement real city filtering, counts, and an explicit all-cities state. |
-| P1 | Long trips become one undifferentiated scroll | Five late Rome days require scrolling past every preceding city and transfer. | Add city sections with collapse, a day index, and previous/next city navigation. Consider virtualization after the interaction model is stable. |
-| P1 | Planning signals are detached from viewport context | The right rail continues to discuss Day 2 while the planner is positioned at Day 18. | Make signals follow the active day, with a separate trip-wide issues summary. |
-| P1 | The overview stop rail does not scale | At eight stops the horizontal row ends on a clipped half-card with no strong overflow affordance. | Replace large cards with a compact ordered stop timeline and explicit scroll controls. |
-| P1 | Transfer and stay semantics are too quiet | Seven-hour transfers look like ordinary placeholders; Bern renders as “0 nights”; lodging gaps are absent. | Surface travel nights, transfer stops, accommodation status, and unresolved transport choices in both planner and overview. |
-| P2 | Flexible duration is still over-specified | Untimed source places can be marked Flexible, but the fixture still needs estimated durations for every item. | Allow unknown duration and distinguish estimate, confirmed duration, and travel-provider duration. |
-| P2 | Provider health is not actionable | A permanently closed food stop survives as subtitle text rather than a warning with replacement action. | Add source-health metadata, last-checked time, and replace/dismiss actions. |
-| P2 | Consecutive empty days are visually repetitive | Four Rome open days repeat the same large empty card and CTA. | Compress empty runs, offer destination-level templates, and expand a day on demand. |
+| Priority | Weakness | Resolution |
+| --- | --- | --- |
+| P0 | Planner context did not follow the active day | The scroll container now tracks the active day. Header city, IANA timezone, direct-day selector, previous/next city controls, and assistant context update together. |
+| P0 | Saved-idea city filters were presentational | The default filter now follows the active city, filters the rendered cards, and exposes current counts beside an explicit all-cities state. |
+| P1 | Long trips became one undifferentiated scroll | Days are grouped into collapsible city sections, city/day jumps bypass the long scroll, and repeated open days collapse into a single expandable planning surface. |
+| P1 | Planning signals were detached from viewport context | Day load, unknown durations, reservations, open decisions, place health, and add suggestions now derive from the active day. Transport and lodging gaps remain trip-wide. |
+| P1 | The overview stop rail did not scale | Compact snap-aligned stop cards retain native scrolling and add visible, disabled-aware previous/next controls. |
+| P1 | Transfer and stay semantics were too quiet | Travel blocks now have transport styling and provenance; zero-night Bern is a transfer stop; stay nights, travel nights, lodging status, and unresolved transport are explicit. |
+| P2 | Flexible duration was over-specified | Duration is optional. The UI distinguishes open, estimated, confirmed, and provider-sourced values without fabricating defaults. |
+| P2 | Provider health was not actionable | Structured closed-place metadata now produces a checked-date warning with replacement and dismissal actions. |
+| P2 | Consecutive empty days were visually repetitive | The four open Rome days render as one summary and expand only when someone chooses to plan them. Departure remains distinct. |
 
-## Recommended next slice
+## Verification
 
-Build scroll-aware planner context first: active day/city detection, real city filters, and a compact day/city navigator. That single slice resolves the two P0 failures and gives contextual planning signals a reliable anchor.
+Pure planner-view tests protect grouping, open-day compression, day-local signals, duration provenance, and city filtering. Playwright exercises the long trip at 1024×768, 1440×900, and 1728×1117; it also verifies the Rome context, actual idea filtering, provider-health action, transfer semantics, stop timeline controls, transfer-stop language, map modes, and body overflow.

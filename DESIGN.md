@@ -43,9 +43,12 @@ All production colors use semantic OKLCH roles.
 
 - 1440px planner: 300px ideas rail, flexible itinerary canvas, 360px context rail.
 - 1024px planner: ideas and context become drawers; itinerary stays primary.
+- Long itineraries keep a sticky active-day context with city-local timezone, previous/next city controls, a direct day jump, collapsible city sections, and compact summaries for consecutive open days.
+- Saved ideas default to the active city and offer an explicit all-cities state. Planning signals follow the active day; trip-wide lodging and transport gaps remain a separate summary.
 - 8px base spacing; section rhythm uses 16, 24, 32, 48, and 64px.
 - Cards use 8–16px radii and either a border or compact functional shadow.
 - The night globe is a large 65–75vh in-page stage inside the otherwise light overview shell.
+- Journey Overview uses a compact, ordered stop timeline with native scrolling and visible previous/next controls. Zero-night stops are named transfer stops, while lodging status and unresolved transport remain explicit route facts.
 
 ## Components
 

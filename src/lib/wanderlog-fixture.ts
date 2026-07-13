@@ -3,14 +3,14 @@ import type { DemoCity, DemoDay, DemoIdea, DemoItem } from "@/lib/demo-data";
 export const wanderlogSourceUrl = "https://wanderlog.com/plan/kbtkhysjlxosqhzv/trip-to-budapest-prague-and-more/shared";
 
 export const wanderlogCities: DemoCity[] = [
-  { id: "budapest", name: "Budapest", country: "Hungary", nights: 2, lat: 47.4979, lon: 19.0402, image: "https://itin-dev.wanderlogstatic.com/freeImageSmall/UPhFX77MC4FC6LFe41Mf2mGA6QYja5zl" },
-  { id: "prague", name: "Prague", country: "Czechia", nights: 3, lat: 50.0755, lon: 14.4378, image: "https://itin-dev.wanderlogstatic.com/freeImageSmall/v42E25XvxE1zWYhKASBjKvg3SuBp97D7" },
-  { id: "ortisei", name: "Ortisei", country: "Italy", nights: 2, lat: 46.5753, lon: 11.6711, image: "https://itin-dev.wanderlogstatic.com/freeImageSmall/o8UtK8LmFcXTSSd4oT9cAcNkOeM2MnuW" },
-  { id: "lermoos", name: "Lermoos", country: "Austria", nights: 1, lat: 47.4037, lon: 10.8807, image: "https://itin-dev.wanderlogstatic.com/freeImageSmall/7vDzrKuMrxkTQJb5IPivVwRXrTY12qiZ" },
-  { id: "bern", name: "Bern", country: "Switzerland", nights: 0, lat: 46.948, lon: 7.4474, image: "https://itin-dev.wanderlogstatic.com/freeImageSmall/CAE3Sx9herhOvTPzGeguTTFw7YxmsT2O" },
-  { id: "kandersteg", name: "Kandersteg", country: "Switzerland", nights: 1, lat: 46.4947, lon: 7.6733, image: "https://itin-dev.wanderlogstatic.com/freeImageSmall/UDFnJbb0uFr5qO6GuoNNMa1I2hwQMH08" },
-  { id: "zermatt", name: "Zermatt", country: "Switzerland", nights: 3, lat: 46.0207, lon: 7.7491, image: "https://itin-dev.wanderlogstatic.com/freeImageSmall/9QIX2Ahkja6HfvNypEHlQcpp1bokv1Mn" },
-  { id: "rome", name: "Rome", country: "Italy", nights: 5, lat: 41.9028, lon: 12.4964, image: "https://itin-dev.wanderlogstatic.com/freeImageSmall/mn1PEqM9dcRXFhVWSIX5soCBqOTgZKtk" },
+  { id: "budapest", name: "Budapest", country: "Hungary", nights: 2, timeZone: "Europe/Budapest", lat: 47.4979, lon: 19.0402, image: "https://itin-dev.wanderlogstatic.com/freeImageSmall/UPhFX77MC4FC6LFe41Mf2mGA6QYja5zl", stayStatus: "needs_confirmation", lodgingName: "The Hive Party Hostel" },
+  { id: "prague", name: "Prague", country: "Czechia", nights: 3, timeZone: "Europe/Prague", lat: 50.0755, lon: 14.4378, image: "https://itin-dev.wanderlogstatic.com/freeImageSmall/v42E25XvxE1zWYhKASBjKvg3SuBp97D7", stayStatus: "needed" },
+  { id: "ortisei", name: "Ortisei", country: "Italy", nights: 2, timeZone: "Europe/Rome", lat: 46.5753, lon: 11.6711, image: "https://itin-dev.wanderlogstatic.com/freeImageSmall/o8UtK8LmFcXTSSd4oT9cAcNkOeM2MnuW", stayStatus: "needed" },
+  { id: "lermoos", name: "Lermoos", country: "Austria", nights: 1, timeZone: "Europe/Vienna", lat: 47.4037, lon: 10.8807, image: "https://itin-dev.wanderlogstatic.com/freeImageSmall/7vDzrKuMrxkTQJb5IPivVwRXrTY12qiZ", stayStatus: "needed" },
+  { id: "bern", name: "Bern", country: "Switzerland", nights: 0, timeZone: "Europe/Zurich", lat: 46.948, lon: 7.4474, image: "https://itin-dev.wanderlogstatic.com/freeImageSmall/CAE3Sx9herhOvTPzGeguTTFw7YxmsT2O" },
+  { id: "kandersteg", name: "Kandersteg", country: "Switzerland", nights: 1, timeZone: "Europe/Zurich", lat: 46.4947, lon: 7.6733, image: "https://itin-dev.wanderlogstatic.com/freeImageSmall/UDFnJbb0uFr5qO6GuoNNMa1I2hwQMH08", stayStatus: "needed" },
+  { id: "zermatt", name: "Zermatt", country: "Switzerland", nights: 3, timeZone: "Europe/Zurich", lat: 46.0207, lon: 7.7491, image: "https://itin-dev.wanderlogstatic.com/freeImageSmall/9QIX2Ahkja6HfvNypEHlQcpp1bokv1Mn", stayStatus: "needed" },
+  { id: "rome", name: "Rome", country: "Italy", nights: 5, timeZone: "Europe/Rome", lat: 41.9028, lon: 12.4964, image: "https://itin-dev.wanderlogstatic.com/freeImageSmall/mn1PEqM9dcRXFhVWSIX5soCBqOTgZKtk", stayStatus: "needed" },
 ];
 
 export const wanderlogDays: DemoDay[] = [
@@ -34,8 +34,8 @@ export const wanderlogDays: DemoDay[] = [
   { id: "wl-day-18", ordinal: 18, date: "Jun 27", cityId: "rome", title: "Departure day" },
 ];
 
-const activity = (id: string, dayId: string, title: string, subtitle: string, duration = 90): DemoItem => ({ id, dayId, title, subtitle, duration, kind: "activity" });
-const placeholder = (id: string, dayId: string, title: string, subtitle: string, duration: number, placeholderType: DemoItem["placeholderType"]): DemoItem => ({ id, dayId, title, subtitle, duration, kind: "placeholder", placeholderType });
+const activity = (id: string, dayId: string, title: string, subtitle: string, duration?: number): DemoItem => ({ id, dayId, title, subtitle, duration, durationSource: duration ? "estimate" : undefined, kind: "activity" });
+const placeholder = (id: string, dayId: string, title: string, subtitle: string, duration: number, placeholderType: DemoItem["placeholderType"], durationSource: DemoItem["durationSource"] = "estimate"): DemoItem => ({ id, dayId, title, subtitle, duration, durationSource, kind: "placeholder", placeholderType });
 
 export const wanderlogItems: DemoItem[] = [
   activity("wl-kiosk", "wl-day-1", "KIOSK Budapest", "Dinner · Budapest"),
@@ -45,10 +45,10 @@ export const wanderlogItems: DemoItem[] = [
   activity("wl-bastion", "wl-day-2", "Fisherman's Bastion", "Castle District"),
   activity("wl-funicular", "wl-day-2", "Budapest Castle Hill Funicular", "Castle Hill", 45),
   activity("wl-chain", "wl-day-2", "Széchenyi Chain Bridge", "Danube crossing", 45),
-  activity("wl-cake", "wl-day-2", "Kürtőskalács", "Food stop · marked permanently closed", 45),
+  { ...activity("wl-cake", "wl-day-2", "Kürtőskalács", "Food stop"), health: "permanently_closed", healthCheckedAt: "2026-07-12" },
   activity("wl-beer", "wl-day-2", "Élesztő kézműves söröző", "Craft beer bar", 90),
   activity("wl-sparty", "wl-day-2", "SPARTY — Széchenyi Bath Party", "Ticketed nightlife", 180),
-  placeholder("wl-budapest-prague", "wl-day-3", "Budapest → Prague", "7 hr 33 min · train or flight undecided", 453, "travel"),
+  placeholder("wl-budapest-prague", "wl-day-3", "Budapest → Prague", "Train or flight undecided", 453, "travel", "provider"),
   activity("wl-vinohrady", "wl-day-3", "Vinohrady", "Prague neighborhood", 120),
   placeholder("wl-recovery", "wl-day-3", "Train ride recovery", "Keep the rest of the day deliberately open", 180, "rest"),
   activity("wl-sedlec", "wl-day-4", "Sedlec Ossuary", "Kutná Hora"),
@@ -59,9 +59,9 @@ export const wanderlogItems: DemoItem[] = [
   activity("wl-ortisei", "wl-day-6", "Ortisei — Val Gardena", "2 hr 28 min from Innsbruck", 148),
   activity("wl-seceda", "wl-day-6", "Seceda Ridgeline", "Dolomites hike", 240),
   activity("wl-gran-cir", "wl-day-7", "Gran Cir", "Dolomites hike", 360),
-  placeholder("wl-lermoos-transfer", "wl-day-8", "Gran Cir → Lermoos", "7 hr · transit route", 420, "travel"),
+  placeholder("wl-lermoos-transfer", "wl-day-8", "Gran Cir → Lermoos", "Transit route", 420, "travel", "provider"),
   activity("wl-lermoos", "wl-day-8", "Lermoos", "Explore Lermoos", 90),
-  placeholder("wl-bern-transfer", "wl-day-9", "Lermoos → Bern", "7 hr 28 min · transit", 448, "travel"),
+  placeholder("wl-bern-transfer", "wl-day-9", "Lermoos → Bern", "Transit choice unresolved", 448, "travel", "provider"),
   activity("wl-bern", "wl-day-9", "Bern", "Transfer stop", 60),
   activity("wl-kandersteg", "wl-day-9", "Kandersteg", "1 hr 6 min from Bern", 66),
   activity("wl-ferrata", "wl-day-10", "Via Ferrata Kandersteg–Allmenalp", "Climb · weather dependent", 300),
@@ -72,7 +72,7 @@ export const wanderlogItems: DemoItem[] = [
   activity("wl-riffelsee", "wl-day-11", "Riffelsee", "Alpine lake", 90),
   activity("wl-riffelberg", "wl-day-11", "Riffelberg", "Mountain stop", 60),
   placeholder("wl-open-mountain", "wl-day-12", "Open mountain day", "Weather buffer and recovery", 360, "buffer"),
-  placeholder("wl-rome-transfer", "wl-day-13", "Zermatt → Rome", "Transport still needs a decision", 480, "travel"),
+  placeholder("wl-rome-transfer", "wl-day-13", "Zermatt → Rome", "Transport still needs a decision", 480, "travel", "estimate"),
   activity("wl-rome", "wl-day-13", "Rome", "Arrival and check-in", 90),
 ];
 
