@@ -2,11 +2,11 @@
 
 ## Current State
 
-Nightthread Production V1 is implemented on the feature branch with a sky-washed light workspace, dusk-photographic welcome surface, light editorial journey map, and an intentional NASA Black Marble Globe at night mode. The 18-day, eight-stop Wanderlog fixture now verifies scroll-aware planner context, real city filtering, long-trip navigation, contextual signals, explicit transfer and lodging semantics, optional duration provenance, provider-health actions, and a controlled stop timeline. The Cloudflare worker bundle, D1 migration, collaboration room, provider boundaries, deterministic planning rules, responsive demos, and release checks are complete locally.
+Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules, and long-trip demo are implemented on the feature branch. A hands-on authenticated browser test created a real Budapest trip in local D1, but exposed that the planner, saved ideas, settings, and activity surfaces still render Tokyo demo data and do not provide the D1-backed mutations required to enter the itinerary. Release 1 is therefore not production-complete despite the passing fixture and build checks.
 
 ## Current Position
 
-- Phase: deployment readiness
+- Phase: authenticated product implementation
 - Branch: `codex/nightthread-v1`
 - Foundation commit: `688418f`
 - Implementation commit: `1d55d5e`
@@ -14,24 +14,29 @@ Nightthread Production V1 is implemented on the feature branch with a sky-washed
 - Light workspace and night globe commit: `f80cea3`
 - Wanderlog stress fixture commit: `6a5e5de`
 - Long-trip usability commit: `5cda5b6`
+- Local test authentication commit: `5491330`
 - Build: passing Next.js and OpenNext production builds
-- Tests: 31 unit/contract tests and 15 Chromium critical-flow checks passing
+- Tests: 33 unit/contract tests and 15 fixture-focused Chromium critical-flow checks passing
 - Deployment: Wrangler dry run passes; live resources and credentials are not configured
+- Remote: `https://github.com/jakyeamos/nightthread.git`
 
 ## Next Step
 
-Provision production Cloudflare resources and provider credentials, then validate OAuth, magic-link delivery, private R2 access, and multi-client Durable Object collaboration in the deployed environment.
+Replace demo-backed authenticated surfaces with authoritative D1 loaders and mutations, beginning with city/day/night setup, then saved ideas and itinerary editing. Repeat the full Wanderlog entry through the browser before resuming deployment readiness.
 
 ## Blockers
 
 - Production deployment requires Cloudflare, Google OAuth, Geoapify, Unsplash, Resend, and a verified sending-domain configuration.
-- No Git remote is configured, so commits cannot be pushed yet.
+- Real trip entry is blocked after initial creation: authenticated planner, saved ideas, settings, and activity pages still use Tokyo demo data, and visible add controls do not create product records.
+- Trip creation writes the trip and first city but creates no days or stay nights, causing the dated Budapest trip to open with zero days and label Budapest as a transfer stop.
+- The map tile proxy references the Workers Cache API directly, which throws `caches is not defined` under the current Next.js local development runtime.
 
 ## Risks
 
 - External free-tier limits and provider availability may change.
 - Full multi-client realtime, OAuth callback, magic-link delivery, and private-R2 integration require deployed Cloudflare resources for final validation.
 - Wrangler warns that an internal Durable Object is unavailable inside Next's local dev proxy; the custom OpenNext Worker bundle exports it and passes the Wrangler deployment dry run.
+- Fixture-focused browser tests can pass while authenticated product routes remain demo-backed; release gates must include creation and mutation of a fresh D1 trip.
 
 ## Recent Progress
 
@@ -45,6 +50,8 @@ Provision production Cloudflare resources and provider credentials, then validat
 - 2026-07-13: Replaced app-wide darkness with the light planning system, dusk welcome, protected Geoapify tiles, and NASA night globe (`f80cea3`).
 - 2026-07-13: Added the 18-day, eight-city Wanderlog stress fixture and prioritized the resulting long-trip weaknesses (`6a5e5de`).
 - 2026-07-13: Fixed the Wanderlog stress weaknesses across planner navigation, filtering, signals, trip semantics, health actions, open-day compression, and the overview stop timeline (`5cda5b6`).
+- 2026-07-13: Added a development/demo/loopback-gated local test identity and visible auth error feedback (`5491330`).
+- 2026-07-13: Created a fresh Budapest trip through the browser and confirmed the authenticated planner, ideas, settings, and activity routes are still demo-backed.
 
 ## Quick Tasks Completed
 
@@ -57,3 +64,4 @@ Provision production Cloudflare resources and provider credentials, then validat
 | 2026-07-13 | Verified the light workspace and both journey map modes at all three target desktop sizes. |
 | 2026-07-13 | Verified the Wanderlog fixture reaches Day 18 at 1024, 1440, and 1728 widths. |
 | 2026-07-13 | Verified the resolved Wanderlog stress flow, 31 unit tests, both production builds, and Worker dry run. |
+| 2026-07-13 | Hands-on entry created the real trip shell and exposed D1 product-flow blockers hidden by fixtures. |
