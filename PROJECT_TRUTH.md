@@ -17,6 +17,7 @@ Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules
 - Local test authentication commit: `5491330`
 - Authenticated planning recovery commit: `6f4b4ce`
 - Route correction controls commit: `3bf36f6`
+- Planner navigation-race fix commit: `178e253`
 - Build: passing Next.js and OpenNext production builds
 - Tests: 37 unit/contract tests and 15 fixture-focused Chromium critical-flow checks passing
 - Deployment: Wrangler dry run passes; live resources and credentials are not configured
@@ -54,6 +55,7 @@ Complete the hands-on Budapest–Prague–Alps entry using the repaired route or
 - 2026-07-13: Replaced authenticated demo fallbacks with a shared D1 workspace, persistent planning/settings/activity flows, accurate membership, and local-safe map caching (`6f4b4ce`).
 - 2026-07-13: Recovered the browser-created Budapest trip to 18 stable days and 17 stay nights through the authenticated server action.
 - 2026-07-13: Added route reordering and explicit existing-city day-tail assignment after the live Wanderlog entry exposed out-of-order repair gaps (`3bf36f6`).
+- 2026-07-13: Prevented scroll observation from overriding an explicit city/day jump near the end of long trips (`178e253`).
 
 ## Quick Tasks Completed
 
@@ -70,3 +72,4 @@ Complete the hands-on Budapest–Prague–Alps entry using the repaired route or
 | 2026-07-13 | Verified all four authenticated product routes return the real Budapest trip with no Tokyo fallback. |
 | 2026-07-13 | Passed 37 tests, lint, typecheck, Next/OpenNext builds, and the Wrangler deployment dry run. |
 | 2026-07-13 | Browser-tested route entry and added correction controls for late or missed city stops. |
+| 2026-07-13 | Browser-tested and fixed the Kandersteg-to-Rome explicit-navigation race. |
