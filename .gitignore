@@ -38,6 +38,7 @@ yarn-error.log*
 .dev.vars
 .wrangler/
 .open-next/
+.aios/
 
 # vercel
 .vercel
