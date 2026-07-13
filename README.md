@@ -1,13 +1,43 @@
 # Nightthread
 
-Nightthread is a private, desktop-first collaborative trip planner built around saved ideas, flexible placeholders, shared day planning, and a city-level journey map.
+Nightthread is a private, desktop-first collaborative trip planner for collecting saved places, shaping flexible days, and seeing a multi-city journey emerge.
 
-## Product shape
+## Stack
 
-- Collect and vote on places before scheduling them.
-- Arrange exact times or broad morning, afternoon, and evening periods.
-- Use first-class Eat, Travel, Rest, Coffee, Explore, and Buffer placeholders.
-- Collaborate through presence, edit locks, reactions, votes, and activity history.
-- Review the whole journey through a quiet city map connected by a yarn-like route.
+- Next.js 16 App Router on Cloudflare Workers through OpenNext
+- D1 and Drizzle for relational state and generated migrations
+- Private R2 assets behind membership-checked handlers
+- One hibernating Durable Object per trip for presence, 30-second edit leases, and ordered patches
+- Better Auth with Google and Resend-backed 10-minute magic links
+- MapLibre, Motion, dnd-kit, Zod, Vitest, and Playwright
 
-The repository targets Next.js on Cloudflare Workers with D1, R2, and Durable Objects. Setup and development instructions will be added with the application scaffold.
+## Local development
+
+```bash
+pnpm install
+cp .env.example .env.local
+pnpm db:migrate:local
+pnpm dev
+```
+
+Set `NEXT_PUBLIC_DEMO_MODE=true` to expose the realistic Tokyo–Kyoto–Osaka journey at `/trips/demo/planner`. It is intentionally separate from authenticated product data.
+
+## Quality gates
+
+```bash
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm build
+pnpm e2e
+pnpm exec opennextjs-cloudflare build
+pnpm exec wrangler deploy --dry-run
+```
+
+## Cloudflare setup
+
+Create a D1 database, private R2 bucket, and Worker, then replace the placeholder D1 ID in `wrangler.jsonc`. Populate Worker secrets from `.env.example`; never commit them. Google OAuth must use the stable Worker callback URL, and Resend magic links require a verified user-owned sending domain.
+
+Generate schema changes with `pnpm db:generate`, review the SQL, and apply them locally before using `pnpm db:migrate:remote`. Deploy with `pnpm deploy` after the required credentials and Cloudflare resources exist.
+
+The scheduled Worker purge runs every five minutes. Deleted records disappear immediately, accept undo strictly within ten seconds, and are permanently purged after expiry.
