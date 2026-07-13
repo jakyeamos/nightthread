@@ -78,7 +78,7 @@ function PlannerContent({ workspace }: { workspace: TripWorkspace }) {
   const [healthDismissals, setHealthDismissals] = useState<Set<string>>(new Set());
   const scrollRef = useRef<HTMLElement | null>(null);
   const dayNodes = useRef(new Map<string, HTMLElement>());
-  const explicitNavigationUntil = useRef(0);
+  const explicitNavigationTarget = useRef<string | null>(null);
   const reduced = useReducedMotion();
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
   const groups = useMemo(() => groupDaysByCity(workspace.days, workspace.cities), [workspace.cities, workspace.days]);
@@ -107,7 +107,7 @@ function PlannerContent({ workspace }: { workspace: TripWorkspace }) {
     const updateActiveDay = (): void => {
       window.cancelAnimationFrame(frame);
       frame = window.requestAnimationFrame(() => {
-        if (Date.now() < explicitNavigationUntil.current) return;
+        if (explicitNavigationTarget.current) return;
         const bottomGap = container.scrollHeight - container.scrollTop - container.clientHeight;
         const lastRenderedDay = [...workspace.days].reverse().find((day) => dayNodes.current.has(day.id));
         if (bottomGap < 8 && lastRenderedDay) {
@@ -126,9 +126,19 @@ function PlannerContent({ workspace }: { workspace: TripWorkspace }) {
         setActiveDayId((current) => current === closestId ? current : closestId);
       });
     };
+    const resumeObservation = (): void => {
+      explicitNavigationTarget.current = null;
+      updateActiveDay();
+    };
+    const resumeObservationFromKey = (event: KeyboardEvent): void => {
+      if (["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "].includes(event.key)) resumeObservation();
+    };
     updateActiveDay();
     container.addEventListener("scroll", updateActiveDay, { passive: true });
-    return () => { window.cancelAnimationFrame(frame); container.removeEventListener("scroll", updateActiveDay); };
+    container.addEventListener("wheel", resumeObservation, { passive: true });
+    container.addEventListener("touchstart", resumeObservation, { passive: true });
+    container.addEventListener("keydown", resumeObservationFromKey);
+    return () => { window.cancelAnimationFrame(frame); container.removeEventListener("scroll", updateActiveDay); container.removeEventListener("wheel", resumeObservation); container.removeEventListener("touchstart", resumeObservation); container.removeEventListener("keydown", resumeObservationFromKey); };
   }, [activeDayId, workspace.days]);
 
   function runContaining(dayId: string): string | undefined {
@@ -143,7 +153,7 @@ function PlannerContent({ workspace }: { workspace: TripWorkspace }) {
     const day = workspace.days.find((candidate) => candidate.id === dayId);
     if (!day) return;
     setActiveDayId(dayId);
-    explicitNavigationUntil.current = Date.now() + 500;
+    explicitNavigationTarget.current = dayId;
     setCollapsedCities((current) => { const next = new Set(current); next.delete(day.cityId); return next; });
     const runId = runContaining(dayId);
     if (runId) setExpandedRuns((current) => new Set(current).add(runId));
