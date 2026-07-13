@@ -67,6 +67,10 @@ const assignCitySchema = z.object({
   startDay: z.coerce.number().int().positive(),
 });
 
+const cityDetailsSchema = citySchema.omit({ startDay: true }).extend({
+  cityId: z.string().uuid(),
+});
+
 function values(formData: FormData): Record<string, FormDataEntryValue> {
   return Object.fromEntries([...formData.entries()].filter(([, value]) => value !== ""));
 }
@@ -118,6 +122,20 @@ export async function addCity(tripId: string, formData: FormData): Promise<void>
     env.DB.prepare("insert into activity_events (id,trip_id,actor_user_id,entity_kind,entity_id,action,after,created_at) values (?1,?2,?3,'city',?4,'created',?5,?6)").bind(crypto.randomUUID(), tripId, user.id, cityId, JSON.stringify({ name: input.name, startDay: input.startDay ?? null }), now),
   ];
   await env.DB.batch(statements);
+  refreshTrip(tripId);
+}
+
+export async function updateCity(tripId: string, formData: FormData): Promise<void> {
+  const { user } = await requireTripMember(tripId);
+  const input = cityDetailsSchema.parse(values(formData));
+  const { env } = getCloudflareContext();
+  const city = await env.DB.prepare("select name,country_code as countryCode,timezone as timeZone,lat,lon from cities where id=?1 and trip_id=?2 and deleted_at is null").bind(input.cityId, tripId).first<Record<string, unknown>>();
+  if (!city) throw new Error("CITY_NOT_IN_TRIP");
+  const now = Date.now();
+  await env.DB.batch([
+    env.DB.prepare("update cities set name=?1,country_code=?2,timezone=?3,lat=?4,lon=?5,version=version+1,updated_at=?6 where id=?7 and trip_id=?8").bind(input.name, input.countryCode || null, input.timeZone, input.lat ?? null, input.lon ?? null, now, input.cityId, tripId),
+    env.DB.prepare("insert into activity_events (id,trip_id,actor_user_id,entity_kind,entity_id,action,before,after,created_at) values (?1,?2,?3,'city',?4,'city_updated',?5,?6,?7)").bind(crypto.randomUUID(), tripId, user.id, input.cityId, JSON.stringify(city), JSON.stringify({ name: input.name, countryCode: input.countryCode, timeZone: input.timeZone, lat: input.lat, lon: input.lon }), now),
+  ]);
   refreshTrip(tripId);
 }
 
