@@ -8,7 +8,12 @@ import { signInLocalDemo } from "@/auth/local-demo-action";
 import { authClient } from "@/auth/client";
 import { Button } from "@/components/ui/button";
 
-export function SignInCard() {
+interface SignInCardProps {
+  callbackURL?: string;
+  heading?: string;
+}
+
+export function SignInCard({ callbackURL = "/trips", heading = "Continue to your trips" }: SignInCardProps) {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [pending, setPending] = useState(false);
@@ -19,7 +24,7 @@ export function SignInCard() {
     event.preventDefault();
     setPending(true);
     setError(null);
-    const result = await authClient.signIn.magicLink({ email, callbackURL: "/trips" });
+    const result = await authClient.signIn.magicLink({ email, callbackURL });
     setPending(false);
     if (!result.error) setSent(true);
     else setError("Magic-link sign-in is not configured for this environment.");
@@ -28,7 +33,7 @@ export function SignInCard() {
   async function signInWithGoogle(): Promise<void> {
     setPending(true);
     setError(null);
-    const result = await authClient.signIn.social({ provider: "google", callbackURL: "/trips" });
+    const result = await authClient.signIn.social({ provider: "google", callbackURL });
     setPending(false);
     if (result.error) setError("Google sign-in is not configured for this environment.");
   }
@@ -45,7 +50,7 @@ export function SignInCard() {
         ) : (
           <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <p className="eyebrow">Private by default</p>
-            <h2 className="mt-2 text-xl font-semibold">Continue to your trips</h2>
+            <h2 className="mt-2 text-xl font-semibold">{heading}</h2>
             <form onSubmit={sendLink} className="mt-6 space-y-3">
               <label className="block text-sm font-medium" htmlFor="email">Email address</label>
               <div className="relative"><Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--faint)]" size={17} /><input id="email" type="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" className="h-12 w-full rounded-xl border border-[var(--line)] bg-white pl-10 pr-3 text-sm text-[var(--ink)] placeholder:text-[var(--muted)]" /></div>

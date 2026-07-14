@@ -1,5 +1,5 @@
 import { betterAuth } from "better-auth";
-import { magicLink } from "better-auth/plugins";
+import { bearer, deviceAuthorization, magicLink } from "better-auth/plugins";
 
 export const auth = betterAuth({
   appName: "Nightthread",
@@ -12,6 +12,12 @@ export const auth = betterAuth({
     },
   },
   plugins: [
+    bearer(),
+    deviceAuthorization({
+      expiresIn: "10m",
+      interval: "5s",
+      verificationUri: "/desktop/authorize",
+    }),
     magicLink({
       expiresIn: 600,
       storeToken: "hashed",

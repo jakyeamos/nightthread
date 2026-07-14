@@ -1,8 +1,8 @@
 "use client";
 
 import { createAuthClient } from "better-auth/react";
-import { magicLinkClient } from "better-auth/client/plugins";
+import { deviceAuthorizationClient, magicLinkClient } from "better-auth/client/plugins";
 
 export const authClient = createAuthClient({
-  plugins: [magicLinkClient()],
+  plugins: [deviceAuthorizationClient(), magicLinkClient()],
 });

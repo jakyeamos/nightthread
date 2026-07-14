@@ -1,9 +1,10 @@
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { betterAuth } from "better-auth/minimal";
-import { magicLink } from "better-auth/plugins";
+import { bearer, deviceAuthorization, magicLink } from "better-auth/plugins";
 import { drizzle } from "drizzle-orm/d1";
 import { Resend } from "resend";
 import * as schema from "@/db/schema";
+import { isDesktopAuthClient } from "@/auth/desktop";
 
 export function createAuth(env: CloudflareEnv) {
   const database = drizzle(env.DB, { schema });
@@ -28,6 +29,13 @@ export function createAuth(env: CloudflareEnv) {
       },
     },
     plugins: [
+      bearer(),
+      deviceAuthorization({
+        expiresIn: "10m",
+        interval: "5s",
+        verificationUri: "/desktop/authorize",
+        validateClient: isDesktopAuthClient,
+      }),
       magicLink({
         expiresIn: 600,
         storeToken: "hashed",
