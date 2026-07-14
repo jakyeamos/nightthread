@@ -2,11 +2,11 @@
 
 ## Current State
 
-Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules, long-trip fixture, and authenticated D1 planning flows are implemented on the feature branch. Real trips now create or recover stable days and nights, load one shared workspace contract, and persist route stops, editable city map details and day titles, manual ideas, direct itinerary activities, votes, scheduling, exact-minute placeholders, placeholder replacement, deletion undo, settings, invitations, and activity history. Planner creation uses one selector for activities, placeholders, stays, and travel; travel supports daytime itinerary placement or overnight journey records. Day items render chronologically by exact time or Morning/Afternoon/Evening while retaining stable order inside a shared bucket. Route stops can be reordered and existing cities can reclaim a stable day tail after out-of-order entry. Embedded Chromium displays synchronized retained MapLibre frames with correctly sized Geoapify and NASA maps, true route anchors, collision-aware numbered pins, and aligned drag updates.
+Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules, long-trip fixture, authenticated D1 planning flows, and desktop device-authorization boundary are implemented on the feature branch. Real trips now create or recover stable days and nights, load one shared workspace contract, and persist route stops, editable city map details and day titles, manual ideas, direct itinerary activities, votes, scheduling, exact-minute placeholders, placeholder replacement, deletion undo, settings, invitations, and activity history. Planner creation uses one selector for activities, placeholders, stays, and travel; travel supports daytime itinerary placement or overnight journey records. Day items render chronologically by exact time or Morning/Afternoon/Evening while retaining stable order inside a shared bucket. Embedded Chromium displays synchronized retained MapLibre frames with correctly sized Geoapify and NASA maps, true route anchors, collision-aware numbered pins, and aligned drag updates. Better Auth now accepts only the macOS and Windows desktop clients for ten-minute device codes, exposes browser approval after normal sign-in, and authenticates exchanged sessions through bearer headers backed by D1.
 
 ## Current Position
 
-- Phase: authenticated product verification and itinerary entry
+- Phase: Electron private-beta delivery shell
 - Branch: `codex/nightthread-v1`
 - Foundation commit: `688418f`
 - Implementation commit: `1d55d5e`
@@ -26,18 +26,20 @@ Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules
 - Embedded journey-map rendering commit: `0a652b8`
 - Unified planner creation commit: `4f5f8c8`
 - Chronological itinerary ordering commit: `025eb90`
+- Desktop device authorization commit: `08e5bf0`
 - Build: passing Next.js and OpenNext production builds
-- Tests: 38 unit/contract tests and 15 fixture-focused Chromium critical-flow checks passing
+- Tests: 39 unit/contract tests and 15 fixture-focused Chromium critical-flow checks passing
 - Deployment: Wrangler dry run passes; live resources and credentials are not configured
 - Remote: `https://github.com/jakyeamos/nightthread.git`
 
 ## Next Step
 
-Add an isolated fresh-D1 browser test that proves the completed itinerary and journey-night edits persist across reloads.
+Build the hardened Electron main/preload shell around the completed device authorization flow.
 
 ## Blockers
 
 - Production deployment requires Cloudflare, Google OAuth, Geoapify, Unsplash, Resend, and a verified sending-domain configuration.
+- Signed beta artifacts additionally require a stable HTTPS Worker origin, Apple Developer ID and notarization credentials, and a Windows Authenticode certificate.
 
 ## Risks
 
@@ -63,12 +65,12 @@ Add an isolated fresh-D1 browser test that proves the completed itinerary and jo
 - 2026-07-13: Fixed embedded WebGL compositing with synchronized retained MapLibre frames, accurate sizing, route anchors, and collision-aware pins (`0a652b8`).
 - 2026-07-13: Unified planner creation and added distinct daytime-travel, overnight-travel, and stay persistence flows (`4f5f8c8`).
 - 2026-07-13: Sorted each day by exact time or period after live entry exposed insertion-order chronology (`025eb90`).
+- 2026-07-13: Added Better Auth device authorization, bearer sessions, approved desktop client IDs, a D1 migration, and the browser approval surface (`08e5bf0`).
 
 ## Quick Tasks Completed
 
 | Date | Task |
 | --- | --- |
-| 2026-07-13 | Hands-on entry created the real trip shell and exposed D1 product-flow blockers hidden by fixtures. |
 | 2026-07-13 | Verified all four authenticated product routes return the real Budapest trip with no Tokyo fallback. |
 | 2026-07-13 | Passed 37 tests, lint, typecheck, Next/OpenNext builds, and the Wrangler deployment dry run. |
 | 2026-07-13 | Browser-tested route entry and added correction controls for late or missed city stops. |
@@ -80,3 +82,4 @@ Add an isolated fresh-D1 browser test that proves the completed itinerary and jo
 | 2026-07-13 | Browser-dragged both real map modes and verified synchronized frames, yarn anchors, and eight legible pins. |
 | 2026-07-13 | Saved Day 1's Budapest stay through the unified control and verified history plus unchanged journey totals. |
 | 2026-07-13 | Verified Day 1 renders Afternoon before Evening and preserves the three Evening stops' order. |
+| 2026-07-13 | Passed 39 unit/contract tests, lint, and strict typecheck with the desktop authorization boundary. |
