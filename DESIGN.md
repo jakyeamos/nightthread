@@ -50,6 +50,14 @@ All production colors use semantic OKLCH roles.
 - The night globe is a large 65–75vh in-page stage inside the otherwise light overview shell.
 - Journey Overview uses a compact, ordered stop timeline with native scrolling and visible previous/next controls. Zero-night stops are named transfer stops, while lodging status and unresolved transport remain explicit route facts.
 
+## Desktop Shell
+
+The Electron window is a frame around the shared light workspace, not a separate native visual system. The remote product owns trip navigation and content; native menus provide Back, Forward, Reload, Check for Updates, and Sign Out without duplicating those controls inside planning pages.
+
+Local desktop states use the same sky canvas, white surface, indigo action, coral thread, and restrained photography logic as the public welcome surface. Starting, sign-in, offline, update, and fatal states remain useful without accepting offline edits. The shell never introduces dark chrome around the light planner; darkness remains confined to the night-globe stage.
+
+Window behavior is desktop-first: 1440×900 by default, 1024×768 minimum, restored bounds, and one running instance. External destinations open in the system browser. `nightthread://` links navigate to validated trips or invitations only after authentication.
+
 ## Components
 
 - Buttons: primary, secondary, quiet, destructive, and icon variants share height, focus ring, loading, and disabled behavior.
