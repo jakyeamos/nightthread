@@ -16,7 +16,7 @@ async function mockMapTiles(page: Page, failNight = false): Promise<void> {
   });
 }
 
-test("Wanderlog fixture stresses long multi-city planning", async ({ page }) => {
+test("Wanderlog fixture stresses long multi-city planning", async ({ page }, testInfo) => {
   await mockMapTiles(page);
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/trips/demo-wanderlog");
@@ -39,7 +39,7 @@ test("Wanderlog fixture stresses long multi-city planning", async ({ page }) => 
   await expect(page.locator('[data-map-mode="night_globe"] [data-journey-pin]')).toHaveCount(8);
   await expect(page.locator('[data-map-mode="night_globe"] [data-map-frame]')).toBeVisible();
   await expect(page.locator('[data-map-mode="night_globe"] button[aria-label*="Transfer stop"]')).toHaveCount(1);
-  await page.screenshot({ path: "/Users/jakyeamos/.codex/visualizations/2026/07/13/019f5d22-cb38-7723-a51b-d4d4ebb9be5b/nightthread-wanderlog-overview-1440.png", fullPage: false });
+  await page.screenshot({ path: testInfo.outputPath("nightthread-wanderlog-overview-1440.png"), fullPage: false });
 
   await page.goto("/trips/demo-wanderlog/planner");
   const contextHeader = page.locator('header[data-active-city]');
@@ -65,7 +65,7 @@ test("Wanderlog fixture stresses long multi-city planning", async ({ page }) => 
   await page.getByRole("button", { name: "Dismiss" }).click();
   await expect(page.getByText("Provider marks this place permanently closed")).toHaveCount(0);
   await expect(page.locator("body")).not.toHaveCSS("overflow-x", "scroll");
-  await page.screenshot({ path: "/Users/jakyeamos/.codex/visualizations/2026/07/13/019f5d22-cb38-7723-a51b-d4d4ebb9be5b/nightthread-wanderlog-stress-1440.png", fullPage: false });
+  await page.screenshot({ path: testInfo.outputPath("nightthread-wanderlog-stress-1440.png"), fullPage: false });
 });
 
 for (const viewport of [{ width: 1024, height: 768 }, { width: 1728, height: 1117 }]) {
@@ -95,7 +95,7 @@ for (const viewport of viewports) {
 }
 
 for (const viewport of viewports) {
-  test(`planner remains usable and light at ${viewport.width}x${viewport.height}`, async ({ page }) => {
+  test(`planner remains usable and light at ${viewport.width}x${viewport.height}`, async ({ page }, testInfo) => {
     await mockMapTiles(page);
     await page.setViewportSize(viewport);
     await page.goto("/trips/demo/planner");
@@ -105,12 +105,12 @@ for (const viewport of viewports) {
     else await expect(page.getByText(/Planning signals · Day 1/)).toBeHidden();
     await expect(page.locator("body")).not.toHaveCSS("overflow-x", "scroll");
     await expect(page.locator(".night-globe-stage")).toHaveCount(0);
-    if (viewport.width === 1440) await page.screenshot({ path: "/Users/jakyeamos/.codex/visualizations/2026/07/13/019f5d22-cb38-7723-a51b-d4d4ebb9be5b/nightthread-light-planner-1440.png", fullPage: false });
+    if (viewport.width === 1440) await page.screenshot({ path: testInfo.outputPath("nightthread-light-planner-1440.png"), fullPage: false });
   });
 }
 
 for (const viewport of viewports) {
-  test(`journey and night globe work at ${viewport.width}x${viewport.height}`, async ({ page }) => {
+  test(`journey and night globe work at ${viewport.width}x${viewport.height}`, async ({ page }, testInfo) => {
     await mockMapTiles(page);
     await page.setViewportSize(viewport);
     await page.goto("/trips/demo");
@@ -137,7 +137,7 @@ for (const viewport of viewports) {
     await expect(page.getByText(/NASA\/GSFC\/ESDIS GIBS/)).toBeVisible();
     const stageHeight = await page.locator(".night-globe-stage").evaluate((element) => element.getBoundingClientRect().height);
     expect(stageHeight).toBeGreaterThanOrEqual(Math.max(520, viewport.height * 0.65));
-    if (viewport.width === 1440) await page.locator(".night-globe-stage").screenshot({ path: "/Users/jakyeamos/.codex/visualizations/2026/07/13/019f5d22-cb38-7723-a51b-d4d4ebb9be5b/nightthread-globe-stage-1440.png" });
+    if (viewport.width === 1440) await page.locator(".night-globe-stage").screenshot({ path: testInfo.outputPath("nightthread-globe-stage-1440.png") });
   });
 }
 

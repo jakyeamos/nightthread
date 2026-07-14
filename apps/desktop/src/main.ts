@@ -20,6 +20,8 @@ import { EncryptedTokenStore } from "./token-store";
 import { DesktopUpdater } from "./updater";
 import { isVisibleOnDisplay, readWindowBounds, writeWindowBounds } from "./window-state";
 
+declare const __NIGHTTHREAD_PACKAGED_WEB_ORIGIN__: string;
+
 let mainWindow: BrowserWindow | null = null;
 let runtimeConfig: DesktopRuntimeConfig;
 let tokenStore: EncryptedTokenStore;
@@ -55,7 +57,10 @@ app.on("window-all-closed", () => {
 });
 
 async function startApplication(): Promise<void> {
-  runtimeConfig = loadRuntimeConfig(process.env, app.isPackaged);
+  runtimeConfig = loadRuntimeConfig({
+    ...process.env,
+    NIGHTTHREAD_WEB_ORIGIN: app.isPackaged ? __NIGHTTHREAD_PACKAGED_WEB_ORIGIN__ : process.env.NIGHTTHREAD_WEB_ORIGIN,
+  }, app.isPackaged);
   process.env.NIGHTTHREAD_APP_VERSION = app.getVersion();
   tokenStore = new EncryptedTokenStore(join(app.getPath("userData"), "session.json"), safeStorage);
   if (!tokenStore.isAvailable()) throw new Error("Nightthread requires the operating system's secure credential storage");

@@ -15,12 +15,12 @@ test("launches the isolated local shell with the typed bridge", async () => {
     },
   });
   try {
-    const window = await application.firstWindow();
-    await expect(window.getByRole("heading", { name: "Your trips, together" })).toBeVisible();
-    await expect(window.getByRole("button", { name: "Sign in in browser" })).toBeVisible();
-    await expect(window.getByText("Cloud-connected · No offline edits")).toBeVisible();
-    const bridge = await window.evaluate(() => {
-      const value = (window as Window & { nightthreadDesktop?: Record<string, unknown> }).nightthreadDesktop;
+    const pageWindow = await application.firstWindow();
+    await expect(pageWindow.getByRole("heading", { name: "Your trips, together" })).toBeVisible();
+    await expect(pageWindow.getByRole("button", { name: "Sign in in browser" })).toBeVisible();
+    await expect(pageWindow.getByText("Cloud-connected · No offline edits")).toBeVisible();
+    const bridge = await pageWindow.evaluate(() => {
+      const value = (globalThis as typeof globalThis & { nightthreadDesktop?: Record<string, unknown> }).nightthreadDesktop;
       return value ? Object.keys(value).sort() : [];
     });
     expect(bridge).toEqual(expect.arrayContaining(["appVersion", "beginSignIn", "checkForUpdates", "openExternal", "platform", "signOut"]));

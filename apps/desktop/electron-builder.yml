@@ -1,0 +1,51 @@
+appId: com.nightthread.desktop
+productName: Nightthread
+asar: true
+directories:
+  output: release
+  buildResources: build
+files:
+  - dist/**
+  - package.json
+protocols:
+  - name: Nightthread links
+    schemes:
+      - nightthread
+publish:
+  provider: github
+  owner: jakyeamos
+  repo: nightthread
+  channel: beta
+  releaseType: prerelease
+generateUpdatesFilesForAllChannels: true
+artifactName: Nightthread-${version}-${os}-${arch}.${ext}
+mac:
+  category: public.app-category.travel
+  icon: build/icon.png
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  notarize: true
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
+  target:
+    - target: dmg
+      arch:
+        - universal
+    - target: zip
+      arch:
+        - universal
+dmg:
+  sign: false
+win:
+  icon: build/icon.png
+  target:
+    - target: nsis
+      arch:
+        - x64
+nsis:
+  oneClick: false
+  allowElevation: true
+  allowToChangeInstallationDirectory: true
+  perMachine: false
+  createDesktopShortcut: true
+  createStartMenuShortcut: true

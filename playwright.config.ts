@@ -5,4 +5,10 @@ export default defineConfig({
   timeout: 30_000,
   use: { baseURL: "http://localhost:3000", trace: "retain-on-failure" },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  webServer: {
+    command: "pnpm dev",
+    url: "http://localhost:3000",
+    reuseExistingServer: true,
+    env: { ...process.env, NEXT_PUBLIC_DEMO_MODE: "true" },
+  },
 });

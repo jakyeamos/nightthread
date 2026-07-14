@@ -14,6 +14,7 @@
 # testing
 /coverage
 /test-results
+**/test-results/
 /playwright-report
 
 # next.js
@@ -24,6 +25,8 @@
 /build
 /apps/desktop/dist
 /apps/desktop/release
+!/apps/desktop/build/
+!/apps/desktop/build/**
 
 # misc
 .DS_Store
