@@ -9,16 +9,17 @@ import { authClient } from "@/auth/client";
 import { Button } from "@/components/ui/button";
 
 interface SignInCardProps {
+  allowLocalDemo?: boolean;
   callbackURL?: string;
   heading?: string;
 }
 
-export function SignInCard({ callbackURL = "/trips", heading = "Continue to your trips" }: SignInCardProps) {
+export function SignInCard({ allowLocalDemo = true, callbackURL = "/trips", heading = "Continue to your trips" }: SignInCardProps) {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const localDemoEnabled = process.env.NODE_ENV === "development" && process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+  const localDemoEnabled = allowLocalDemo && process.env.NODE_ENV === "development" && process.env.NEXT_PUBLIC_DEMO_MODE === "true";
 
   async function sendLink(event: React.FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();

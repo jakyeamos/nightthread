@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/.pnpm-store
 /.pnp
 .pnp.*
 .yarn/*
@@ -21,6 +22,8 @@
 
 # production
 /build
+/apps/desktop/dist
+/apps/desktop/release
 
 # misc
 .DS_Store

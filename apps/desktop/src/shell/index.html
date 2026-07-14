@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'" />
+    <title>Nightthread</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main>
+      <section class="photo" aria-hidden="true">
+        <div class="route"><span></span><span></span><span></span></div>
+        <p>Follow the thread<br />of a great trip.</p>
+      </section>
+      <section class="workspace">
+        <header><div class="brand-mark">N</div><strong>Nightthread</strong></header>
+        <div class="card" aria-live="polite">
+          <p class="eyebrow">Private desktop beta</p>
+          <h1 id="title">Starting Nightthread</h1>
+          <p id="message">Opening your trips…</p>
+          <div id="user-code" class="code" hidden></div>
+          <button id="primary-action" type="button" hidden>Continue</button>
+          <button id="update-action" class="secondary" type="button" hidden>Install update</button>
+        </div>
+        <footer><span>Cloud-connected · No offline edits</span><span id="version"></span></footer>
+      </section>
+    </main>
+    <script src="../shell.js"></script>
+  </body>
+</html>

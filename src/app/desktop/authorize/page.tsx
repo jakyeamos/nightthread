@@ -30,7 +30,7 @@ export default async function DesktopAuthorizePage({ searchParams }: DesktopAuth
         ) : session ? (
           <DesktopAuthorization userCode={userCode} />
         ) : (
-          <SignInCard callbackURL={callbackURL} heading="Sign in to approve desktop" />
+          <SignInCard allowLocalDemo={false} callbackURL={callbackURL} heading="Sign in to approve desktop" />
         )}
       </div>
     </main>
