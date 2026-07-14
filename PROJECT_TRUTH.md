@@ -2,7 +2,7 @@
 
 ## Current State
 
-Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules, long-trip fixture, and authenticated D1 planning flows are implemented on the feature branch. Real trips now create or recover stable days and nights, load one shared workspace contract, and persist route stops, editable city map details and day titles, manual ideas, direct itinerary activities, votes, scheduling, exact-minute placeholders, placeholder replacement, deletion undo, settings, invitations, and activity history. Route stops can be reordered and existing cities can reclaim a stable day tail after out-of-order entry. Embedded Chromium now displays synchronized retained MapLibre frames with correctly sized Geoapify and NASA maps, true route anchors, collision-aware numbered pins, and aligned drag updates.
+Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules, long-trip fixture, and authenticated D1 planning flows are implemented on the feature branch. Real trips now create or recover stable days and nights, load one shared workspace contract, and persist route stops, editable city map details and day titles, manual ideas, direct itinerary activities, votes, scheduling, exact-minute placeholders, placeholder replacement, deletion undo, settings, invitations, and activity history. Planner creation uses one selector for activities, placeholders, stays, and travel; travel supports daytime itinerary placement or overnight journey records. Route stops can be reordered and existing cities can reclaim a stable day tail after out-of-order entry. Embedded Chromium displays synchronized retained MapLibre frames with correctly sized Geoapify and NASA maps, true route anchors, collision-aware numbered pins, and aligned drag updates.
 
 ## Current Position
 
@@ -24,6 +24,7 @@ Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules
 - Editable day titles commit: `796a133`
 - Editable city map details commit: `91533bd`
 - Embedded journey-map rendering commit: `0a652b8`
+- Unified planner creation commit: `4f5f8c8`
 - Build: passing Next.js and OpenNext production builds
 - Tests: 37 unit/contract tests and 15 fixture-focused Chromium critical-flow checks passing
 - Deployment: Wrangler dry run passes; live resources and credentials are not configured
@@ -31,7 +32,7 @@ Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules
 
 ## Next Step
 
-Merge planner creation into one Activity/Placeholder/Stay/Travel selector and persist stay/travel records, then add an isolated fresh-D1 browser test that proves the completed itinerary persists across reloads.
+Add an isolated fresh-D1 browser test that proves the completed itinerary and journey-night edits persist across reloads.
 
 ## Blockers
 
@@ -46,7 +47,6 @@ Merge planner creation into one Activity/Placeholder/Stay/Travel selector and pe
 
 ## Recent Progress
 
-- 2026-07-13: Added membership-checked vote, reaction, invitation regeneration, deletion, and strict-window undo endpoints (`b22e0bd`).
 - 2026-07-13: Replaced app-wide darkness with the light planning system, dusk welcome, protected Geoapify tiles, and NASA night globe (`f80cea3`).
 - 2026-07-13: Added the 18-day, eight-city Wanderlog stress fixture and prioritized the resulting long-trip weaknesses (`6a5e5de`).
 - 2026-07-13: Fixed the Wanderlog stress weaknesses across planner navigation, filtering, signals, trip semantics, health actions, open-day compression, and the overview stop timeline (`5cda5b6`).
@@ -61,12 +61,12 @@ Merge planner creation into one Activity/Placeholder/Stay/Travel selector and pe
 - 2026-07-13: Made the existing day-options control edit and persist itinerary day titles (`796a133`).
 - 2026-07-13: Added editable existing-city country, timezone, and coordinates after Budapest was omitted from the live map (`91533bd`).
 - 2026-07-13: Fixed embedded WebGL compositing with synchronized retained MapLibre frames, accurate sizing, route anchors, and collision-aware pins (`0a652b8`).
+- 2026-07-13: Unified planner creation and added distinct daytime-travel, overnight-travel, and stay persistence flows (`4f5f8c8`).
 
 ## Quick Tasks Completed
 
 | Date | Task |
 | --- | --- |
-| 2026-07-13 | Verified the Wanderlog fixture reaches Day 18 at 1024, 1440, and 1728 widths. |
 | 2026-07-13 | Verified the resolved Wanderlog stress flow, 31 unit tests, both production builds, and Worker dry run. |
 | 2026-07-13 | Hands-on entry created the real trip shell and exposed D1 product-flow blockers hidden by fixtures. |
 | 2026-07-13 | Verified all four authenticated product routes return the real Budapest trip with no Tokyo fallback. |
@@ -78,3 +78,4 @@ Merge planner creation into one Activity/Placeholder/Stay/Travel selector and pe
 | 2026-07-13 | Entered all 18 Wanderlog day titles through the planner and reload-verified Days 1 and 18. |
 | 2026-07-13 | Repaired Budapest map data through settings and verified all eight overview pins. |
 | 2026-07-13 | Browser-dragged both real map modes and verified synchronized frames, yarn anchors, and eight legible pins. |
+| 2026-07-13 | Saved Day 1's Budapest stay through the unified control and verified history plus unchanged journey totals. |
