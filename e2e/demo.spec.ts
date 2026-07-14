@@ -32,10 +32,12 @@ test("Wanderlog fixture stresses long multi-city planning", async ({ page }) => 
   await expect(page.getByText("transport choices open")).toBeVisible();
   await expect(page.getByText("7", { exact: true }).last()).toBeVisible();
   await expect(page.getByText("stays need lodging")).toBeVisible();
-  await expect(page.locator('[data-map-mode="journey"] .maplibregl-marker')).toHaveCount(8);
+  await expect(page.locator('[data-map-mode="journey"] [data-journey-pin]')).toHaveCount(8);
+  await expect(page.locator('[data-map-mode="journey"] [data-map-frame]')).toBeVisible();
   await expect(page.locator('[data-map-mode="journey"] button[aria-label*="Transfer stop"]')).toHaveCount(1);
   await page.getByRole("radio", { name: "Globe at night" }).click();
-  await expect(page.locator('[data-map-mode="night_globe"] .maplibregl-marker')).toHaveCount(8);
+  await expect(page.locator('[data-map-mode="night_globe"] [data-journey-pin]')).toHaveCount(8);
+  await expect(page.locator('[data-map-mode="night_globe"] [data-map-frame]')).toBeVisible();
   await expect(page.locator('[data-map-mode="night_globe"] button[aria-label*="Transfer stop"]')).toHaveCount(1);
   await page.screenshot({ path: "/Users/jakyeamos/.codex/visualizations/2026/07/13/019f5d22-cb38-7723-a51b-d4d4ebb9be5b/nightthread-wanderlog-overview-1440.png", fullPage: false });
 
@@ -114,12 +116,18 @@ for (const viewport of viewports) {
     await page.goto("/trips/demo");
     await expect(page.getByRole("heading", { name: "Tokyo after dark" })).toBeVisible();
     await expect(page.locator('[data-map-mode="journey"]')).toBeVisible();
-    await expect(page.locator('[data-map-projection="mercator"] .maplibregl-marker')).toHaveCount(3);
+    await expect(page.locator('[data-map-projection="mercator"] [data-journey-pin]')).toHaveCount(3);
+    await expect(page.locator('[data-map-projection="mercator"] [data-map-frame]')).toBeVisible();
     await page.getByRole("radio", { name: "Globe at night" }).click();
     const globe = page.locator('[data-map-mode="night_globe"]');
     await expect(globe).toBeVisible();
     await expect(globe).toHaveAttribute("data-map-projection", "globe");
-    await expect(globe.locator('.maplibregl-marker')).toHaveCount(3);
+    await expect(globe.locator('[data-journey-pin]')).toHaveCount(3);
+    await expect(globe.locator('[data-map-frame]')).toBeVisible();
+    const globeBounds = await globe.boundingBox();
+    const canvasBounds = await globe.locator(".maplibregl-canvas").boundingBox();
+    expect(canvasBounds?.height).toBeCloseTo(globeBounds?.height ?? 0, 0);
+    expect(canvasBounds?.width).toBeCloseTo(globeBounds?.width ?? 0, 0);
     await globe.locator('button[aria-label^="2."]').focus();
     await page.keyboard.press("Enter");
     await expect(page.getByText("Kyoto, Japan")).toBeVisible();
