@@ -6,7 +6,7 @@ Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules
 
 ## Current Position
 
-- Phase: Electron private-beta delivery shell
+- Phase: Electron private-beta implementation complete; signed release prerequisites pending
 - Branch: `codex/nightthread-v1`
 - Foundation commit: `688418f`
 - Implementation commit: `1d55d5e`
@@ -29,6 +29,7 @@ Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules
 - Desktop device authorization commit: `08e5bf0`
 - Secure Electron shell commit: `b929af3`
 - Desktop packaging and release commit: `45685ac`
+- Desktop product documentation commit: `f339f01`
 - Build: passing Next.js and OpenNext production builds
 - Desktop packaging: unsigned universal macOS DMG/ZIP smoke passes; signed release workflow targets universal macOS and Windows x64
 - Tests: 39 unit/contract tests and 15 fixture-focused Chromium critical-flow checks passing
@@ -37,7 +38,7 @@ Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules
 
 ## Next Step
 
-Finish desktop delivery documentation, then run the complete web, Worker, Electron, and packaging verification ladder.
+Run the complete web, Worker, Electron, and packaging verification ladder, then configure the stable Worker origin and signing secrets before the first `desktop-v*` tag.
 
 ## Blockers
 
@@ -71,6 +72,7 @@ Finish desktop delivery documentation, then run the complete web, Worker, Electr
 - 2026-07-13: Added Better Auth device authorization, bearer sessions, approved desktop client IDs, a D1 migration, and the browser approval surface (`08e5bf0`).
 - 2026-07-13: Added the sandboxed Electron shell, encrypted token store, exact-origin policy, typed bridge, deep links, native commands, updater runtime, and local recovery surfaces (`b929af3`).
 - 2026-07-13: Added macOS universal and Windows x64 packaging, product artwork, beta updater metadata, native signing/notarization inputs, and the tag-driven GitHub prerelease workflow (`45685ac`).
+- 2026-07-13: Documented the shared web/desktop product boundary, secure device handoff, local desktop workflow, and signed prerelease prerequisites (`f339f01`).
 
 ## Quick Tasks Completed
 
