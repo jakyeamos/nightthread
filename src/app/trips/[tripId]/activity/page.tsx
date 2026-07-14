@@ -30,6 +30,7 @@ function eventCopy(event: EventRow): string {
     moved: `moved ${name ?? "a city stop"}`,
     city_updated: `updated ${name ?? "a city stop"}`,
     days_assigned: `assigned ${name ?? "a city"} from Day ${String(after?.startDay ?? "")}`,
+    night_saved: after?.kind === "travel" ? `set overnight travel from ${String(after?.fromCityName ?? "one city")} to ${String(after?.toCityName ?? "another")}` : `set a stay in ${String(after?.cityName ?? "the destination")}`,
   };
   return labels[event.action] ?? `${event.action.replaceAll("_", " ")} ${event.entityKind.replaceAll("_", " ")}`;
 }

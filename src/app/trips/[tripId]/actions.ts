@@ -37,9 +37,17 @@ const placeholderSchema = z.object({
   dayId: z.string().uuid(),
   placeholderType: z.enum(["eat", "travel", "rest", "coffee", "explore", "buffer"]),
   period: z.enum(["morning", "afternoon", "evening"]),
+  exactTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/).optional(),
   duration: z.coerce.number().int().min(15).max(1440),
+  fromCityId: z.string().uuid().optional(),
+  toCityId: z.string().uuid().optional(),
   notes: z.string().trim().max(1000).optional(),
 });
+
+const tripNightSchema = z.discriminatedUnion("nightKind", [
+  z.object({ dayId: z.string().uuid(), nightKind: z.literal("stay"), stayCityId: z.string().uuid(), notes: z.string().trim().max(1000).optional() }),
+  z.object({ dayId: z.string().uuid(), nightKind: z.literal("travel"), fromCityId: z.string().uuid(), toCityId: z.string().uuid(), notes: z.string().trim().max(1000).optional() }),
+]).refine((input) => input.nightKind === "stay" || input.fromCityId !== input.toCityId, "Travel nights must connect two different cities");
 
 const manualActivitySchema = z.object({
   dayId: z.string().uuid(),
@@ -239,11 +247,56 @@ export async function createPlaceholder(tripId: string, formData: FormData): Pro
     env.DB.prepare("select coalesce(max(position),-1)+1 as position from itinerary_items where day_id=?1 and deleted_at is null").bind(input.dayId).first<{ position: number }>(),
   ]);
   if (!day) throw new Error("DAY_NOT_IN_TRIP");
+  let notes = input.notes || null;
+  let travelMetadata: Record<string, unknown> = {};
+  if (input.placeholderType === "travel") {
+    if (!input.fromCityId || !input.toCityId || input.fromCityId === input.toCityId) throw new Error("TRAVEL_ROUTE_REQUIRED");
+    const cityRows = await env.DB.prepare("select id,name from cities where trip_id=?1 and deleted_at is null and id in (?2,?3)").bind(tripId, input.fromCityId, input.toCityId).all<{ id: string; name: string }>();
+    const cityNames = new Map(cityRows.results.map((city) => [city.id, city.name]));
+    const fromCityName = cityNames.get(input.fromCityId);
+    const toCityName = cityNames.get(input.toCityId);
+    if (!fromCityName || !toCityName) throw new Error("CITY_NOT_IN_TRIP");
+    notes = `${fromCityName} → ${toCityName}${input.notes ? ` · ${input.notes}` : ""}`;
+    travelMetadata = { fromCityId: input.fromCityId, fromCityName, toCityId: input.toCityId, toCityName };
+  }
+  const scheduleMode = input.exactTime ? "exact" : "period";
+  const startMinute = input.exactTime ? Number(input.exactTime.slice(0, 2)) * 60 + Number(input.exactTime.slice(3, 5)) : null;
   const itemId = crypto.randomUUID();
   const now = Date.now();
   await env.DB.batch([
-    env.DB.prepare("insert into itinerary_items (id,trip_id,day_id,position,kind,placeholder_type,schedule_mode,period,duration_minutes,notes,reservation_status,links,needs_decision,version,created_at,updated_at) values (?1,?2,?3,?4,'placeholder',?5,'period',?6,?7,?8,'none',?9,1,1,?10,?10)").bind(itemId, tripId, input.dayId, position?.position ?? 0, input.placeholderType, input.period, input.duration, input.notes || null, JSON.stringify([]), now),
-    env.DB.prepare("insert into activity_events (id,trip_id,actor_user_id,entity_kind,entity_id,action,after,created_at) values (?1,?2,?3,'itinerary_item',?4,'placeholder_created',?5,?6)").bind(crypto.randomUUID(), tripId, user.id, itemId, JSON.stringify({ placeholderType: input.placeholderType, dayOrdinal: day.ordinal }), now),
+    env.DB.prepare("insert into itinerary_items (id,trip_id,day_id,position,kind,placeholder_type,schedule_mode,period,start_minute,duration_minutes,notes,reservation_status,links,needs_decision,version,created_at,updated_at) values (?1,?2,?3,?4,'placeholder',?5,?6,?7,?8,?9,?10,'none',?11,1,1,?12,?12)").bind(itemId, tripId, input.dayId, position?.position ?? 0, input.placeholderType, scheduleMode, input.exactTime ? null : input.period, startMinute, input.duration, notes, JSON.stringify([]), now),
+    env.DB.prepare("insert into activity_events (id,trip_id,actor_user_id,entity_kind,entity_id,action,after,created_at) values (?1,?2,?3,'itinerary_item',?4,'placeholder_created',?5,?6)").bind(crypto.randomUUID(), tripId, user.id, itemId, JSON.stringify({ placeholderType: input.placeholderType, dayOrdinal: day.ordinal, ...travelMetadata }), now),
+  ]);
+  refreshTrip(tripId);
+}
+
+export async function saveTripNight(tripId: string, formData: FormData): Promise<void> {
+  const { user } = await requireTripMember(tripId);
+  const input = tripNightSchema.parse(values(formData));
+  const { env } = getCloudflareContext();
+  const day = await env.DB.prepare("select id,ordinal,calendar_date as calendarDate from trip_days where id=?1 and trip_id=?2").bind(input.dayId, tripId).first<{ id: string; ordinal: number; calendarDate: string | null }>();
+  if (!day) throw new Error("DAY_NOT_IN_TRIP");
+  const [nextDay, cityRows, existing] = await Promise.all([
+    env.DB.prepare("select id from trip_days where trip_id=?1 and ordinal>?2 order by ordinal limit 1").bind(tripId, day.ordinal).first<{ id: string }>(),
+    env.DB.prepare("select id,name from cities where trip_id=?1 and deleted_at is null").bind(tripId).all<{ id: string; name: string }>(),
+    env.DB.prepare("select kind,stay_city_id as stayCityId,from_city_id as fromCityId,to_city_id as toCityId,notes from trip_nights where trip_id=?1 and after_day_id=?2").bind(tripId, day.id).first<Record<string, unknown>>(),
+  ]);
+  if (!nextDay) throw new Error("FINAL_DAY_HAS_NO_NIGHT");
+  const cityNames = new Map(cityRows.results.map((city) => [city.id, city.name]));
+  const referencedCityIds = input.nightKind === "stay" ? [input.stayCityId] : [input.fromCityId, input.toCityId];
+  if (referencedCityIds.some((cityId) => !cityNames.has(cityId))) throw new Error("CITY_NOT_IN_TRIP");
+  const nightId = crypto.randomUUID();
+  const now = Date.now();
+  const after = input.nightKind === "stay"
+    ? { kind: input.nightKind, dayOrdinal: day.ordinal, cityId: input.stayCityId, cityName: cityNames.get(input.stayCityId), notes: input.notes ?? null }
+    : { kind: input.nightKind, dayOrdinal: day.ordinal, fromCityId: input.fromCityId, fromCityName: cityNames.get(input.fromCityId), toCityId: input.toCityId, toCityName: cityNames.get(input.toCityId), notes: input.notes ?? null };
+  const insert = input.nightKind === "stay"
+    ? env.DB.prepare("insert into trip_nights (id,trip_id,after_day_id,kind,stay_city_id,calendar_date,notes) values (?1,?2,?3,'stay',?4,?5,?6)").bind(nightId, tripId, day.id, input.stayCityId, day.calendarDate, input.notes || null)
+    : env.DB.prepare("insert into trip_nights (id,trip_id,after_day_id,kind,from_city_id,to_city_id,calendar_date,notes) values (?1,?2,?3,'travel',?4,?5,?6,?7)").bind(nightId, tripId, day.id, input.fromCityId, input.toCityId, day.calendarDate, input.notes || null);
+  await env.DB.batch([
+    env.DB.prepare("delete from trip_nights where trip_id=?1 and after_day_id=?2").bind(tripId, day.id),
+    insert,
+    env.DB.prepare("insert into activity_events (id,trip_id,actor_user_id,entity_kind,entity_id,action,before,after,created_at) values (?1,?2,?3,'trip_night',?4,'night_saved',?5,?6,?7)").bind(crypto.randomUUID(), tripId, user.id, nightId, existing ? JSON.stringify(existing) : null, JSON.stringify(after), now),
   ]);
   refreshTrip(tripId);
 }
