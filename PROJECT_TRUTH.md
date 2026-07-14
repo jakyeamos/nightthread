@@ -2,7 +2,7 @@
 
 ## Current State
 
-Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules, long-trip fixture, and authenticated D1 planning flows are implemented on the feature branch. Real trips now create or recover stable days and nights, load one shared workspace contract, and persist route stops, editable city map details and day titles, manual ideas, direct itinerary activities, votes, scheduling, exact-minute placeholders, placeholder replacement, deletion undo, settings, invitations, and activity history. Route stops can be reordered and existing cities can reclaim a stable day tail after out-of-order entry.
+Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules, long-trip fixture, and authenticated D1 planning flows are implemented on the feature branch. Real trips now create or recover stable days and nights, load one shared workspace contract, and persist route stops, editable city map details and day titles, manual ideas, direct itinerary activities, votes, scheduling, exact-minute placeholders, placeholder replacement, deletion undo, settings, invitations, and activity history. Route stops can be reordered and existing cities can reclaim a stable day tail after out-of-order entry. Embedded Chromium now displays synchronized retained MapLibre frames with correctly sized Geoapify and NASA maps, true route anchors, collision-aware numbered pins, and aligned drag updates.
 
 ## Current Position
 
@@ -23,6 +23,7 @@ Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules
 - Direct activity entry commit: `863fa75`
 - Editable day titles commit: `796a133`
 - Editable city map details commit: `91533bd`
+- Embedded journey-map rendering commit: `0a652b8`
 - Build: passing Next.js and OpenNext production builds
 - Tests: 37 unit/contract tests and 15 fixture-focused Chromium critical-flow checks passing
 - Deployment: Wrangler dry run passes; live resources and credentials are not configured
@@ -30,7 +31,7 @@ Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules
 
 ## Next Step
 
-Finish the embedded-browser map compositor repair, then add an isolated fresh-D1 browser test that proves the completed itinerary persists across reloads.
+Merge planner creation into one Activity/Placeholder/Stay/Travel selector and persist stay/travel records, then add an isolated fresh-D1 browser test that proves the completed itinerary persists across reloads.
 
 ## Blockers
 
@@ -45,7 +46,6 @@ Finish the embedded-browser map compositor repair, then add an isolated fresh-D1
 
 ## Recent Progress
 
-- 2026-07-13: Kept machine-local AIOS audit output outside project source control (`a96875a`).
 - 2026-07-13: Added membership-checked vote, reaction, invitation regeneration, deletion, and strict-window undo endpoints (`b22e0bd`).
 - 2026-07-13: Replaced app-wide darkness with the light planning system, dusk welcome, protected Geoapify tiles, and NASA night globe (`f80cea3`).
 - 2026-07-13: Added the 18-day, eight-city Wanderlog stress fixture and prioritized the resulting long-trip weaknesses (`6a5e5de`).
@@ -60,12 +60,12 @@ Finish the embedded-browser map compositor repair, then add an isolated fresh-D1
 - 2026-07-13: Added direct manual activity entry with canonical ideas, flexible or exact timing, duration, notes, priority, and activity history (`863fa75`).
 - 2026-07-13: Made the existing day-options control edit and persist itinerary day titles (`796a133`).
 - 2026-07-13: Added editable existing-city country, timezone, and coordinates after Budapest was omitted from the live map (`91533bd`).
+- 2026-07-13: Fixed embedded WebGL compositing with synchronized retained MapLibre frames, accurate sizing, route anchors, and collision-aware pins (`0a652b8`).
 
 ## Quick Tasks Completed
 
 | Date | Task |
 | --- | --- |
-| 2026-07-13 | Verified the light workspace and both journey map modes at all three target desktop sizes. |
 | 2026-07-13 | Verified the Wanderlog fixture reaches Day 18 at 1024, 1440, and 1728 widths. |
 | 2026-07-13 | Verified the resolved Wanderlog stress flow, 31 unit tests, both production builds, and Worker dry run. |
 | 2026-07-13 | Hands-on entry created the real trip shell and exposed D1 product-flow blockers hidden by fixtures. |
@@ -77,3 +77,4 @@ Finish the embedded-browser map compositor repair, then add an isolated fresh-D1
 | 2026-07-13 | Entered KIOSK Budapest directly on Day 1 and reload-verified its canonical saved idea. |
 | 2026-07-13 | Entered all 18 Wanderlog day titles through the planner and reload-verified Days 1 and 18. |
 | 2026-07-13 | Repaired Budapest map data through settings and verified all eight overview pins. |
+| 2026-07-13 | Browser-dragged both real map modes and verified synchronized frames, yarn anchors, and eight legible pins. |
