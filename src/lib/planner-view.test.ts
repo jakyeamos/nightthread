@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { compressEmptyDayRuns, formatDuration, getDaySignals, getVisibleIdeas, groupDaysByCity } from "@/lib/planner-view";
+import { compressEmptyDayRuns, formatDuration, getDaySignals, getVisibleIdeas, groupDaysByCity, sortItineraryItems } from "@/lib/planner-view";
 import { wanderlogDemoTrip } from "@/lib/demo-trips";
 
 describe("planner view behavior", () => {
@@ -33,5 +33,16 @@ describe("planner view behavior", () => {
   it("filters saved ideas to the active city unless all cities is explicit", () => {
     expect(getVisibleIdeas(wanderlogDemoTrip.ideas, "rome", false).map((idea) => idea.name)).toEqual(["First day in Rome"]);
     expect(getVisibleIdeas(wanderlogDemoTrip.ideas, "rome", true)).toHaveLength(4);
+  });
+
+  it("orders a day chronologically while preserving order inside a time bucket", () => {
+    const ordered = sortItineraryItems([
+      { id: "evening-1", dayId: "d", title: "Dinner", subtitle: "", kind: "activity", start: "Evening" },
+      { id: "afternoon", dayId: "d", title: "Check in", subtitle: "", kind: "activity", start: "Afternoon" },
+      { id: "evening-2", dayId: "d", title: "Nightlife", subtitle: "", kind: "activity", start: "Evening" },
+      { id: "exact", dayId: "d", title: "Museum", subtitle: "", kind: "activity", start: "10:30" },
+      { id: "flexible", dayId: "d", title: "Maybe", subtitle: "", kind: "activity" },
+    ]);
+    expect(ordered.map((item) => item.id)).toEqual(["exact", "afternoon", "evening-1", "evening-2", "flexible"]);
   });
 });

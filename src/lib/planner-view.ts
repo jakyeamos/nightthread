@@ -65,6 +65,21 @@ export function formatDuration(item: WorkspaceItem): string {
   return duration;
 }
 
+function itemSortMinute(item: WorkspaceItem): number {
+  if (!item.start) return Number.POSITIVE_INFINITY;
+  const exact = /^(\d{2}):(\d{2})$/.exec(item.start);
+  if (exact) return Number(exact[1]) * 60 + Number(exact[2]);
+  const periods: Record<string, number> = { Morning: 8 * 60, Afternoon: 13 * 60, Evening: 18 * 60 };
+  return periods[item.start] ?? Number.POSITIVE_INFINITY;
+}
+
+export function sortItineraryItems(items: readonly WorkspaceItem[]): WorkspaceItem[] {
+  return items
+    .map((item, index) => ({ item, index }))
+    .sort((left, right) => itemSortMinute(left.item) - itemSortMinute(right.item) || left.index - right.index)
+    .map(({ item }) => item);
+}
+
 export function getDaySignals(dayId: string, items: readonly WorkspaceItem[]): DaySignals {
   const dayItems = items.filter((item) => item.dayId === dayId);
   return {
