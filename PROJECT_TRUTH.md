@@ -28,14 +28,16 @@ Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules
 - Chronological itinerary ordering commit: `025eb90`
 - Desktop device authorization commit: `08e5bf0`
 - Secure Electron shell commit: `b929af3`
+- Desktop packaging and release commit: `45685ac`
 - Build: passing Next.js and OpenNext production builds
+- Desktop packaging: unsigned universal macOS DMG/ZIP smoke passes; signed release workflow targets universal macOS and Windows x64
 - Tests: 39 unit/contract tests and 15 fixture-focused Chromium critical-flow checks passing
 - Deployment: Wrangler dry run passes; live resources and credentials are not configured
 - Remote: `https://github.com/jakyeamos/nightthread.git`
 
 ## Next Step
 
-Add signed packaging metadata and the GitHub prerelease update workflow for macOS universal and Windows x64.
+Finish desktop delivery documentation, then run the complete web, Worker, Electron, and packaging verification ladder.
 
 ## Blockers
 
@@ -68,12 +70,12 @@ Add signed packaging metadata and the GitHub prerelease update workflow for macO
 - 2026-07-13: Sorted each day by exact time or period after live entry exposed insertion-order chronology (`025eb90`).
 - 2026-07-13: Added Better Auth device authorization, bearer sessions, approved desktop client IDs, a D1 migration, and the browser approval surface (`08e5bf0`).
 - 2026-07-13: Added the sandboxed Electron shell, encrypted token store, exact-origin policy, typed bridge, deep links, native commands, updater runtime, and local recovery surfaces (`b929af3`).
+- 2026-07-13: Added macOS universal and Windows x64 packaging, product artwork, beta updater metadata, native signing/notarization inputs, and the tag-driven GitHub prerelease workflow (`45685ac`).
 
 ## Quick Tasks Completed
 
 | Date | Task |
 | --- | --- |
-| 2026-07-13 | Passed 37 tests, lint, typecheck, Next/OpenNext builds, and the Wrangler deployment dry run. |
 | 2026-07-13 | Browser-tested route entry and added correction controls for late or missed city stops. |
 | 2026-07-13 | Browser-tested and fixed the Kandersteg-to-Rome navigation race with interaction-owned selection. |
 | 2026-07-13 | Entered and reload-verified the exact 453-minute Budapest-to-Prague transfer. |
@@ -85,3 +87,4 @@ Add signed packaging metadata and the GitHub prerelease update workflow for macO
 | 2026-07-13 | Verified Day 1 renders Afternoon before Evening and preserves the three Evening stops' order. |
 | 2026-07-13 | Passed 39 unit/contract tests, lint, and strict typecheck with the desktop authorization boundary. |
 | 2026-07-13 | Launched Electron on macOS, exercised Offline/Retry and Chrome handoff, and passed 13 desktop unit tests plus the Electron Playwright smoke. |
+| 2026-07-13 | Produced local universal macOS DMG/ZIP updater artifacts and passed all 15 self-starting web Playwright checks. |
