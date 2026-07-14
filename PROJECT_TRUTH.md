@@ -2,7 +2,7 @@
 
 ## Current State
 
-Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules, long-trip fixture, authenticated D1 planning flows, and desktop device-authorization boundary are implemented on the feature branch. Real trips now create or recover stable days and nights, load one shared workspace contract, and persist route stops, editable city map details and day titles, manual ideas, direct itinerary activities, votes, scheduling, exact-minute placeholders, placeholder replacement, deletion undo, settings, invitations, and activity history. Planner creation uses one selector for activities, placeholders, stays, and travel; travel supports daytime itinerary placement or overnight journey records. Day items render chronologically by exact time or Morning/Afternoon/Evening while retaining stable order inside a shared bucket. Embedded Chromium displays synchronized retained MapLibre frames with correctly sized Geoapify and NASA maps, true route anchors, collision-aware numbered pins, and aligned drag updates. Better Auth now accepts only the macOS and Windows desktop clients for ten-minute device codes, exposes browser approval after normal sign-in, and authenticates exchanged sessions through bearer headers backed by D1.
+Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules, long-trip fixture, authenticated D1 planning flows, desktop device authorization, and hardened Electron delivery shell are implemented on the feature branch. The Electron client runs remote Nightthread content with sandboxing, context isolation, disabled Node integration, exact-origin navigation and credential injection, encrypted session storage, closed typed IPC, deny-by-default permissions, deep links, window restoration, native navigation/sign-out/update commands, and local starting/sign-in/offline/update/fatal surfaces. Better Auth accepts only the macOS and Windows desktop clients for ten-minute device codes, exposes browser approval after normal sign-in, and authenticates exchanged sessions through bearer headers backed by D1. Real trips and both map modes remain Cloudflare-authoritative and continue to use the shared web product.
 
 ## Current Position
 
@@ -27,6 +27,7 @@ Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules
 - Unified planner creation commit: `4f5f8c8`
 - Chronological itinerary ordering commit: `025eb90`
 - Desktop device authorization commit: `08e5bf0`
+- Secure Electron shell commit: `b929af3`
 - Build: passing Next.js and OpenNext production builds
 - Tests: 39 unit/contract tests and 15 fixture-focused Chromium critical-flow checks passing
 - Deployment: Wrangler dry run passes; live resources and credentials are not configured
@@ -34,7 +35,7 @@ Nightthread's light workspace, journey maps, Cloudflare foundation, domain rules
 
 ## Next Step
 
-Build the hardened Electron main/preload shell around the completed device authorization flow.
+Add signed packaging metadata and the GitHub prerelease update workflow for macOS universal and Windows x64.
 
 ## Blockers
 
@@ -66,12 +67,12 @@ Build the hardened Electron main/preload shell around the completed device autho
 - 2026-07-13: Unified planner creation and added distinct daytime-travel, overnight-travel, and stay persistence flows (`4f5f8c8`).
 - 2026-07-13: Sorted each day by exact time or period after live entry exposed insertion-order chronology (`025eb90`).
 - 2026-07-13: Added Better Auth device authorization, bearer sessions, approved desktop client IDs, a D1 migration, and the browser approval surface (`08e5bf0`).
+- 2026-07-13: Added the sandboxed Electron shell, encrypted token store, exact-origin policy, typed bridge, deep links, native commands, updater runtime, and local recovery surfaces (`b929af3`).
 
 ## Quick Tasks Completed
 
 | Date | Task |
 | --- | --- |
-| 2026-07-13 | Verified all four authenticated product routes return the real Budapest trip with no Tokyo fallback. |
 | 2026-07-13 | Passed 37 tests, lint, typecheck, Next/OpenNext builds, and the Wrangler deployment dry run. |
 | 2026-07-13 | Browser-tested route entry and added correction controls for late or missed city stops. |
 | 2026-07-13 | Browser-tested and fixed the Kandersteg-to-Rome navigation race with interaction-owned selection. |
@@ -83,3 +84,4 @@ Build the hardened Electron main/preload shell around the completed device autho
 | 2026-07-13 | Saved Day 1's Budapest stay through the unified control and verified history plus unchanged journey totals. |
 | 2026-07-13 | Verified Day 1 renders Afternoon before Evening and preserves the three Evening stops' order. |
 | 2026-07-13 | Passed 39 unit/contract tests, lint, and strict typecheck with the desktop authorization boundary. |
+| 2026-07-13 | Launched Electron on macOS, exercised Offline/Retry and Chrome handoff, and passed 13 desktop unit tests plus the Electron Playwright smoke. |
